@@ -5,7 +5,10 @@ import java.util.List;
 
 import utils.ImageUtils;
 
+import com.google.common.collect.Lists;
 import com.zurg.imagetotext.gui.Main;
+import com.zurg.imagetotext.model.LineViewData;
+import com.zurg.imagetotext.model.WordViewData;
 
 import document.analysis.LineComponentAnalyzer;
 import document.analysis.ParagraphComponentAnalyzer;
@@ -15,160 +18,257 @@ import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 import javafx.util.converter.NumberStringConverter;
 
 public class WordSceneController {
-	@FXML
-	private ScrollPane scrollPane;
+	@FXML private ScrollPane scrollPane;
 	
+	@FXML private VBox vbox;
 
-	@FXML
-	private Button applyButton;
+	@FXML private Button applyButton;
 	
-	@FXML
-	private Slider blurNeighborhoodSlider;
-	@FXML
-	private Slider blurIterationsSlider;
-	@FXML
-	private Slider thresholdLevelSlider;
+	//~~||standard blur controls||~~//
+	@FXML private Slider standardBlurNeighborhoodSlider;
+	@FXML private Slider standardBlurIterationsSlider;
 	
-	@FXML
-	private TextField blurNeighborhoodText;
-	@FXML
-	private TextField blurIterationsText;
-	@FXML
-	private TextField thresholdLevelText;
+	@FXML private TextField standardBlurNeighborhoodText;
+	@FXML private TextField standardBlurIterationsText;
+	//~~--------------------------~~//
 	
-	@FXML 
-	private RadioButton overlapTextButton;
-	@FXML 
-	private RadioButton showLineSplitsButton;
+	//~~||vertical blur controls||~~//
+	@FXML private Slider verticalBlurNeighborhoodSlider;
+	@FXML private Slider verticalBlurIterationsSlider;
 	
-	
+	@FXML private TextField verticalBlurNeighborhoodText;
+	@FXML private TextField verticalBlurIterationsText;
+	//~~--------------------------~~//
+		
+	@FXML private Slider thresholdLevelSlider;
+	@FXML private TextField thresholdLevelText;
+
+	@FXML private RadioButton overlapTextButton;
+	@FXML private RadioButton showLineSplitsButton;
+	@FXML private RadioButton showThresholdButton;
+
+	private static int NONE = 0, BLUROVERLAY = 1, THRESHOLDOVERLAY = 2;
+
 	private Main mainApp;
 
-	private BufferedImage originalImage, blurredImage;
-	private Image originalImageFX, blurredImageFX;
-	
-	private ImageView blurred, original;
-	private Group blended;
-	
 	private LineComponentAnalyzer lineAnalyzer;
 	
 	@FXML
 	private void initialize() {		
+		lineAnalyzer = new LineComponentAnalyzer();
+		WordViewData.getInstance();
+		
 		syncSlidersWithTextFields();
 		setSliderProperties();
+		bindSlidersToSingleton();
+		setToggleButtonValsToSingleton();
 		
-		lineAnalyzer = new LineComponentAnalyzer();
+		initImagesToScene();
 	}
 	
 	private void setSliderProperties() {
-		blurNeighborhoodSlider.setMin(1);
-		blurNeighborhoodSlider.setMax(20);
-		blurNeighborhoodSlider.setMajorTickUnit(1);
-		setGeneralSliderProperties(blurNeighborhoodSlider);
+		setNeighborhoodSliderProperties(standardBlurNeighborhoodSlider);
+		setGeneralSliderProperties(standardBlurNeighborhoodSlider);
 		
-		blurIterationsSlider.setMin(1);
-		blurIterationsSlider.setMax(6);
-		blurIterationsSlider.setMajorTickUnit(1);
-		setGeneralSliderProperties(blurIterationsSlider);
+		setNeighborhoodSliderProperties(verticalBlurNeighborhoodSlider);
+		setGeneralSliderProperties(verticalBlurNeighborhoodSlider);
+		
+		setIterationSliderProperties(standardBlurIterationsSlider);
+		setGeneralSliderProperties(standardBlurIterationsSlider);
 
+		setIterationSliderProperties(verticalBlurIterationsSlider);
+		setGeneralSliderProperties(verticalBlurIterationsSlider);
+		
 		thresholdLevelSlider.setMin(0);
 		thresholdLevelSlider.setMax(1);
-		thresholdLevelSlider.setMajorTickUnit(0.1);
+		thresholdLevelSlider.setMajorTickUnit(0.05);
 		setGeneralSliderProperties(thresholdLevelSlider);
 	}
-	
+	private void setNeighborhoodSliderProperties(Slider slider) {
+		slider.setMin(1);
+		slider.setMax(20);
+		slider.setMajorTickUnit(1);
+	}
+	private void setIterationSliderProperties(Slider slider) {
+		slider.setMin(1);
+		slider.setMax(6);
+		slider.setMajorTickUnit(1);
+	}
 	private void setGeneralSliderProperties(Slider slider) {
 		slider.setMinorTickCount(0);
 		slider.setShowTickLabels(true);
 		slider.setShowTickMarks(true);
 		slider.setSnapToTicks(true);
 	}
-
 	private void syncSlidersWithTextFields() {
-		blurNeighborhoodText.textProperty().bindBidirectional(blurNeighborhoodSlider.valueProperty(), new NumberStringConverter());
-		blurIterationsText.textProperty().bindBidirectional(blurIterationsSlider.valueProperty(), new NumberStringConverter());
+		standardBlurNeighborhoodText.textProperty().bindBidirectional(standardBlurNeighborhoodSlider.valueProperty(), new NumberStringConverter());
+		standardBlurIterationsText.textProperty().bindBidirectional(standardBlurIterationsSlider.valueProperty(), new NumberStringConverter());
+		verticalBlurNeighborhoodText.textProperty().bindBidirectional(verticalBlurNeighborhoodSlider.valueProperty(), new NumberStringConverter());
+		verticalBlurIterationsText.textProperty().bindBidirectional(verticalBlurIterationsSlider.valueProperty(), new NumberStringConverter());
 		thresholdLevelText.textProperty().bindBidirectional(thresholdLevelSlider.valueProperty(), new NumberStringConverter());
+	}	
+	private void bindSlidersToSingleton() {
+		standardBlurNeighborhoodSlider.valueProperty().bindBidirectional(WordViewData.getStandardBlurNeighborhood());
+		standardBlurIterationsSlider.valueProperty().bindBidirectional(WordViewData.getStandardBlurIterations());
+		verticalBlurNeighborhoodSlider.valueProperty().bindBidirectional(WordViewData.getVerticalBlurNeighborhood());
+		verticalBlurIterationsSlider.valueProperty().bindBidirectional(WordViewData.getVerticalBlurIterations());
+		thresholdLevelSlider.valueProperty().bindBidirectional(WordViewData.getThresholdLevel());
 	}
 	
-	@FXML
-	private void handleApplyButtonClick(){
-		int blurIterations = Integer.parseInt(blurIterationsText.getText());
-		int blurNeighborhood = Integer.parseInt(blurNeighborhoodText.getText());
+	private void setToggleButtonValsToSingleton() {
+		overlapTextButton.selectedProperty().bindBidirectional(LineViewData.getShowOriginalText());
+		showLineSplitsButton.selectedProperty().bindBidirectional(LineViewData.getShowLineSplits());
+		showThresholdButton.selectedProperty().bindBidirectional(LineViewData.getShowThresholdImage());
+	}
+	
+	private void initImagesToScene() {
+		List<BufferedImage> lineImages = LineViewData.getParagraphAnalyzer().getLineSubImages();
+		WordViewData.getUntouchedImages().addAll(lineImages);
 		
-		this.blurImage(blurNeighborhood, blurIterations);
-	}
-	
-	@FXML 
-	private void overlapOriginalText() {
-		if(overlapTextButton.isSelected()) {
-			blurred.setBlendMode(BlendMode.MULTIPLY);
-			blended = new Group(original, blurred);
-			this.scrollPane.setContent(blended);
-		}
-		if(!overlapTextButton.isSelected()) {
-			this.scrollPane.setContent(new Group(blurred));
-		}
-	}
-	
-	@FXML
-	private void showLineSplits() {
-		if(showLineSplitsButton.isSelected()) {
-			BufferedImage untouchedImage = SwingFXUtils.fromFXImage(originalImageFX, null);
-			BufferedImage blurredImage = SwingFXUtils.fromFXImage(blurredImageFX, null);
-			lineAnalyzer.setImages(untouchedImage, blurredImage);
-			lineAnalyzer.setThreshold(thresholdLevelSlider.getValue());
+		List<ImageView> overImageViews = WordViewData.getOverImageViews();
+		List<ImageView> underImageViews = WordViewData.getUnderImageViews();
+		
+		for(BufferedImage line : lineImages) {
+			Image overImage = SwingFXUtils.toFXImage(line, null);
 			
-//			List<Integer> wordSplits = lineAnalyzer.getWordSubImages();
-						
-//			ImageUtils.createHorizontalRedLinesAt(untouchedImage, lineSplits);
-//			original.setImage(SwingFXUtils.toFXImage(untouchedImage, null));
-		}
-		if(!showLineSplitsButton.isSelected()) {
-			original.setImage(SwingFXUtils.toFXImage(originalImage, null));
+			
+			ImageView underImageView = new ImageView(overImage);
+			underImageView.fitWidthProperty().bind(scrollPane.widthProperty());
+			underImageView.preserveRatioProperty().set(true);
+			
+			ImageView overImageView = new ImageView(overImage);
+			overImageView.fitWidthProperty().bind(scrollPane.widthProperty());
+			overImageView.preserveRatioProperty().set(true);
+			
+			underImageViews.add(underImageView);
+			overImageViews.add(overImageView);
+			
+			underImageView.setBlendMode(BlendMode.MULTIPLY);
+			Group images = new Group(overImageView, underImageView);
+			
+			vbox.getChildren().add(images);
+			vbox.getChildren().add(new Separator());
 		}
 	}
 	
-	private void blurImage(int neighborhoodSize, int iterations){
-		BufferedImage imageToBlur = ImageUtils.copyImage(originalImage);
-		ImageUtils.blurImageFast(imageToBlur, neighborhoodSize, iterations);
-		blurredImageFX = SwingFXUtils.toFXImage(imageToBlur, null);
-		blurred.setImage(blurredImageFX);
+	@FXML
+	private void handleDisplaySettings() {
+		List<ImageView> overImageViews = WordViewData.getOverImageViews();
+		List<ImageView> underImageViews = WordViewData.getUnderImageViews();
+		List<BufferedImage> untouchedImages = WordViewData.getUntouchedImages();
 		
-		this.blended = new Group(blurred);
-		this.scrollPane.setContent(blended);
+		for(int i = 0; i < overImageViews.size(); i++) {
+			ImageView underImageView = underImageViews.get(i);
+			ImageView overImageView = overImageViews.get(i);
+			BufferedImage untouchedImage = untouchedImages.get(i);
+			handleDisplayOneLineImage(underImageView, overImageView, untouchedImage);
+		}
 	}
 	
-	public void showImage() {
-		this.scrollPane.setContent(original);
 
+	private void handleDisplayOneLineImage(ImageView underImageView, ImageView overImageView, BufferedImage untouchedImage) {
+		int overlapMode = 0;
+		BufferedImage underImage = getBlurredCopyOf(untouchedImage);
+		BufferedImage overImage = ImageUtils.copyImage(untouchedImage);
+		
+		boolean overlapText = WordViewData.getShowOriginalText().get();
+		boolean showLineSplits = WordViewData.getShowLineSplits().get();
+		boolean showThreshold = WordViewData.getShowThresholdImage().get();
+
+		if(overlapText) {
+			if(showThreshold) {
+				if(showLineSplits) {
+					List<Integer> wordSplits = getWordSplits(underImage, overImage);
+					ImageUtils.createVerticalRedLinesAt(overImage, wordSplits);
+				}
+				thresholdImage(underImage);
+				overlapMode = WordSceneController.THRESHOLDOVERLAY;
+			}
+			if(!showThreshold) {
+				if(showLineSplits) {
+					List<Integer> wordSplits = getWordSplits(underImage, overImage);
+					ImageUtils.createVerticalRedLinesAt(overImage, wordSplits);
+
+				}
+				overlapMode = WordSceneController.BLUROVERLAY;
+			}
+		}
+		else if(!overlapText) {
+			if(showThreshold) {
+				if(showLineSplits) {
+					List<Integer> wordSplits = getWordSplits(underImage, overImage);
+					ImageUtils.createVerticalRedLinesAt(underImage, wordSplits);
+				}
+				thresholdImage(underImage);
+				overlapMode = WordSceneController.NONE;
+			}
+			else if(!showThreshold) {
+				if(showLineSplits) {
+					List<Integer> wordSplits = getWordSplits(underImage, overImage);
+					ImageUtils.createVerticalRedLinesAt(underImage, wordSplits);
+				}
+				overlapMode = WordSceneController.NONE;
+			}
+		}
+		
+		Image underfx = SwingFXUtils.toFXImage(underImage, null);
+		Image overfx = SwingFXUtils.toFXImage(overImage, null);
+		underImageView.setImage(underfx);
+		overImageView.setImage(overfx);
+		
+		setOverlapMode(overlapMode, underImageView, overImageView);
 	}
 	
-	public void setOriginalImage(BufferedImage image) {
-		this.originalImage = image;
-		this.blurredImage = originalImage;
-		this.originalImageFX = SwingFXUtils.toFXImage(originalImage, null);
-		this.blurredImageFX = SwingFXUtils.toFXImage(blurredImage, null);
+	private BufferedImage getBlurredCopyOf(BufferedImage untouchedImage) {
+		BufferedImage imageToModify = ImageUtils.copyImage(untouchedImage);
 		
-		initializeImageViews();
+		int standardNeighborhood = WordViewData.getStandardBlurNeighborhood().intValue();
+		int standardIterations = WordViewData.getStandardBlurIterations().intValue();
+		
+		int verticalNeighborhood = WordViewData.getVerticalBlurNeighborhood().intValue();
+		int verticalIterations = WordViewData.getVerticalBlurNeighborhood().intValue();
+		
+		ImageUtils.blurImageFast(imageToModify, standardNeighborhood, standardIterations);
+		ImageUtils.blurImageVertical(imageToModify, verticalNeighborhood, verticalIterations);
+		
+		return imageToModify;
 	}
 	
-	private void initializeImageViews() {
-		blurred = new ImageView(blurredImageFX);
-		blurred.fitWidthProperty().bind(scrollPane.widthProperty());
-		blurred.preserveRatioProperty().set(true);
-		
-		original = new ImageView(originalImageFX);		
-		original.fitWidthProperty().bind(scrollPane.widthProperty());
-		original.preserveRatioProperty().set(true);		
+	private void thresholdImage(BufferedImage blurredImage) {
+		double thresholdLevel = WordViewData.getThresholdLevel().get();
+		ImageUtils.threshold(blurredImage, thresholdLevel);
 	}
+	
+	private List<Integer> getWordSplits(BufferedImage blurredImage, BufferedImage originalImage) {
+		lineAnalyzer.setUntouchedImage(originalImage);
+		lineAnalyzer.setBlurredImage(blurredImage);
+		
+		List<Integer> wordSplits = lineAnalyzer.getWordSplits();
+		return wordSplits;
+	}
+	
+	
+	public void setOverlapMode(int mode, ImageView underView, ImageView overView) {
+		if(mode == WordSceneController.BLUROVERLAY) {
+			underView.setBlendMode(BlendMode.MULTIPLY);
+		} else if (mode == WordSceneController.THRESHOLDOVERLAY) {
+			underView.setBlendMode(BlendMode.EXCLUSION);
+		} else if (mode == WordSceneController.NONE) {
+			underView.setBlendMode(BlendMode.ADD);
+//			overView.setImage(null);
+		}
+	}
+	
 	
 	public void setMainApp(Main main) {
 		this.mainApp = main;

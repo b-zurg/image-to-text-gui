@@ -64,19 +64,15 @@ public class LineSceneController {
 	
 	private ImageView underImageView, overImageView;
 	
-	private ParagraphComponentAnalyzer paragraphAnalyzer;
-	
-	LineViewData lineViewData;
-	
 
 	@FXML
 	private void initialize() {		
+		LineViewData.getInstance();
+		
 		syncSlidersWithTextFields();
 		setSliderProperties();
-		bindSlidersToSingleton();
-		
-		paragraphAnalyzer = new ParagraphComponentAnalyzer();
-		lineViewData = LineViewData.getInstance();
+		bindSlidersToSingleton();	
+		setToggleButtonValsToSingleton();
 	}
 	
 	private void checkForPreviousImages() {
@@ -134,10 +130,10 @@ public class LineSceneController {
 	}
 	
 	private void setToggleButtonValsToSingleton() {
-		LineViewData.setShowOriginalText(overlapTextButton.isSelected());
-		LineViewData.setShowLineSplits(showLineSplitsButton.isSelected());
-		LineViewData.setShowThresholdImage(showThresholdButton.isSelected());
-		LineViewData.setHotfixLines(hotfixLinesButton.isSelected());
+		overlapTextButton.selectedProperty().bindBidirectional(LineViewData.getShowOriginalText());
+		showLineSplitsButton.selectedProperty().bindBidirectional(LineViewData.getShowLineSplits());
+		showThresholdButton.selectedProperty().bindBidirectional(LineViewData.getShowThresholdImage());
+		hotfixLinesButton.selectedProperty().bindBidirectional(LineViewData.getHotfixLines());
 	}
 	
 	
@@ -160,7 +156,6 @@ public class LineSceneController {
 	
 	@FXML
 	private void handleRadioButtonConfigs() {
-		this.setToggleButtonValsToSingleton();
 		
 		boolean showLineSplits = LineViewData.getShowLineSplits().getValue();
 		boolean showOriginalText = LineViewData.getShowOriginalText().getValue();
@@ -258,6 +253,8 @@ public class LineSceneController {
 		BufferedImage untouchedImage = LineViewData.getUntouchedImage();
 		BufferedImage blurredImage = LineViewData.getBlurredImage();
 
+		ParagraphComponentAnalyzer paragraphAnalyzer = LineViewData.getParagraphAnalyzer();
+		
 		if(LineViewData.getHotfixLines().get()) { paragraphAnalyzer.setUseHotfix(true); }
 		if(!LineViewData.getHotfixLines().get()) { paragraphAnalyzer.setUseHotfix(false); }
 		

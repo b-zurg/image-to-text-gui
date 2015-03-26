@@ -30,6 +30,9 @@ public class Main extends Application {
 	private LineSceneController lineSceneController;
 	private WordSceneController wordSceneController;
 	
+	private AnchorPane imageScene, lineScene, wordScene;
+	
+	
 	@Override
 	public void start(Stage primaryStage) {
 		this.primaryStage = primaryStage;
@@ -59,14 +62,15 @@ public class Main extends Application {
 	
 	public void showLineScene() {
 		try {
-			FXMLLoader loader = new FXMLLoader();
-			InputStream stream = getClass().getResourceAsStream("/fxml/LineScene.fxml");
-			AnchorPane defaultPage = (AnchorPane) loader.load(stream);
-			
-			lineSceneController = loader.getController();
-			lineSceneController.setMainApp(this);
-			
-			rootLayout.setCenter(defaultPage);
+			if(lineScene == null) {
+				FXMLLoader loader = new FXMLLoader();
+				InputStream stream = getClass().getResourceAsStream("/fxml/LineScene.fxml");
+				lineScene = (AnchorPane) loader.load(stream);
+				
+				lineSceneController = loader.getController();
+				lineSceneController.setMainApp(this);
+			}
+			rootLayout.setCenter(lineScene);
 
 		} catch (IOException e) {
     		System.err.println("Could not load resource because of: " + e + e.getCause().toString() + e.getLocalizedMessage().toString() + e.getStackTrace().toString() + e.getSuppressed().toString());
@@ -75,13 +79,14 @@ public class Main extends Application {
 	
 	public void showWordScene() {
 		try {
-			FXMLLoader loader = new FXMLLoader();
-			InputStream stream = getClass().getResourceAsStream("/fxml/WordScene.fxml");
-			AnchorPane wordScene = (AnchorPane) loader.load(stream);
-			
-			wordSceneController = loader.getController();
-			wordSceneController.setMainApp(this);
-			
+			if(wordScene == null) {
+				FXMLLoader loader = new FXMLLoader();
+				InputStream stream = getClass().getResourceAsStream("/fxml/WordScene.fxml");
+				wordScene = (AnchorPane) loader.load(stream);
+				
+				wordSceneController = loader.getController();
+				wordSceneController.setMainApp(this);
+			}
 			rootLayout.setCenter(wordScene);
 		} catch (IOException e) {
 			System.err.println("Could not load resource because of: " + e + e.getCause().toString() + e.getLocalizedMessage().toString() + e.getStackTrace().toString() + e.getSuppressed().toString());
@@ -91,13 +96,14 @@ public class Main extends Application {
 	
 	public void showImageScene() {
 		try {
-			FXMLLoader loader = new FXMLLoader();
-			InputStream stream = getClass().getResourceAsStream("/fxml/ImageScene.fxml");
-			AnchorPane imageScene = (AnchorPane) loader.load(stream);
-			
-			imageSceneController = loader.getController();
-			imageSceneController.setMainApp(this);
-			
+			if(imageScene == null) {
+				FXMLLoader loader = new FXMLLoader();
+				InputStream stream = getClass().getResourceAsStream("/fxml/ImageScene.fxml");
+				imageScene = (AnchorPane) loader.load(stream);
+				
+				imageSceneController = loader.getController();
+				imageSceneController.setMainApp(this);
+			}
 			rootLayout.setCenter(imageScene);
 
 		} catch (IOException e) {

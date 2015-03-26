@@ -2,6 +2,7 @@ package com.zurg.imagetotext.model;
 
 import java.awt.image.BufferedImage;
 
+import document.analysis.ParagraphComponentAnalyzer;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -26,8 +27,10 @@ public class LineViewData {
 	private static BooleanProperty showOriginalText = new SimpleBooleanProperty(false);
 	private static BooleanProperty showLineSplits = new SimpleBooleanProperty(false);
 	private static BooleanProperty showThresholdImage= new SimpleBooleanProperty(false);
-	private static BooleanProperty hotfixLines = new SimpleBooleanProperty(false);
+	private static BooleanProperty hotfixLines = new SimpleBooleanProperty(true);
 
+	private static ParagraphComponentAnalyzer paragraphAnalyzer = new ParagraphComponentAnalyzer();
+	
 	
 	public static LineViewData getInstance() {
 		if(instance == null) {
@@ -36,23 +39,19 @@ public class LineViewData {
 		return instance;
 	}
 	
+	public static boolean isInitialized() {
+		return (instance != null);
+	}
+	
 	public static void setUntouchedImage(BufferedImage untouched) {
 		untouchedParagraph = untouched;
 	}
 	public static void setBlurredImage(BufferedImage blurred) {
 		blurredParagraph = blurred;
 	}
-	public static void setShowLineSplits(boolean val) {
-		showLineSplits.set(val);
-	}
-	public static void setShowOriginalText(boolean val) {
-		showOriginalText.set(val);
-	}
-	public static void setShowThresholdImage(boolean val) {
-		showThresholdImage.set(val);
-	}
-	public static void setHotfixLines(boolean val) {
-		hotfixLines.set(val);
+
+	public static ParagraphComponentAnalyzer getParagraphAnalyzer() {
+		return paragraphAnalyzer;
 	}
 	
 	public static BufferedImage getUntouchedImage() { return untouchedParagraph; }
