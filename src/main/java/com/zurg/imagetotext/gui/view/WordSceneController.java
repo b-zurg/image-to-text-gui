@@ -5,13 +5,11 @@ import java.util.List;
 
 import utils.ImageUtils;
 
-import com.google.common.collect.Lists;
 import com.zurg.imagetotext.gui.Main;
 import com.zurg.imagetotext.model.LineViewData;
 import com.zurg.imagetotext.model.WordViewData;
 
 import document.analysis.LineComponentAnalyzer;
-import document.analysis.ParagraphComponentAnalyzer;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
