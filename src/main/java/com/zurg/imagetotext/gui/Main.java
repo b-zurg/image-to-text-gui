@@ -8,8 +8,10 @@ import java.io.IOException;
 
 import java.io.InputStream;
 
-import com.zurg.imagetotext.gui.view.DefaultSceneController;
+import com.zurg.imagetotext.gui.view.ImageSceneController;
+import com.zurg.imagetotext.gui.view.LineSceneController;
 import com.zurg.imagetotext.gui.view.RootLayoutController;
+import com.zurg.imagetotext.gui.view.WordSceneController;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -23,8 +25,10 @@ import javafx.scene.layout.BorderPane;
 public class Main extends Application {
 	private Stage primaryStage;
 	private BorderPane rootLayout;
-	private DefaultSceneController defaultSceneController;
 	private RootLayoutController rootLayoutController;
+	private ImageSceneController imageSceneController;
+	private LineSceneController lineSceneController;
+	private WordSceneController wordSceneController;
 	
 	@Override
 	public void start(Stage primaryStage) {
@@ -32,8 +36,7 @@ public class Main extends Application {
 		this.primaryStage.setTitle("Image To Text Converter");
 		
 		initRootLayout();
-		showDefaultOverview();
-		
+		showLineScene();
 	}
 
 	public void initRootLayout() {
@@ -54,35 +57,48 @@ public class Main extends Application {
 		}
 	}
 	
-	public void showDefaultOverview() {
+	public void showLineScene() {
 		try {
 			FXMLLoader loader = new FXMLLoader();
-			InputStream stream = getClass().getResourceAsStream("/fxml/DefaultScene.fxml");
+			InputStream stream = getClass().getResourceAsStream("/fxml/LineScene.fxml");
 			AnchorPane defaultPage = (AnchorPane) loader.load(stream);
 			
-			defaultSceneController = loader.getController();
-			defaultSceneController.setMainApp(this);
+			lineSceneController = loader.getController();
+			lineSceneController.setMainApp(this);
 			
 			rootLayout.setCenter(defaultPage);
-			
-			
-			
+
 		} catch (IOException e) {
     		System.err.println("Could not load resource because of: " + e + e.getCause().toString() + e.getLocalizedMessage().toString() + e.getStackTrace().toString() + e.getSuppressed().toString());
 		}
 	}
 	
-	@Deprecated
-	public void showAlternateOverview() {
+	public void showWordScene() {
 		try {
 			FXMLLoader loader = new FXMLLoader();
-			InputStream stream = getClass().getResourceAsStream("/fxml/AlternateTezt.fxml");
-			AnchorPane defaultPage = (AnchorPane) loader.load(stream);
+			InputStream stream = getClass().getResourceAsStream("/fxml/WordScene.fxml");
+			AnchorPane wordScene = (AnchorPane) loader.load(stream);
 			
-//			A = loader.getController();
-//			defaultSceneController.setMainApp(this);
-//			
-			rootLayout.setCenter(defaultPage);
+			wordSceneController = loader.getController();
+			wordSceneController.setMainApp(this);
+			
+			rootLayout.setCenter(wordScene);
+		} catch (IOException e) {
+			System.err.println("Could not load resource because of: " + e + e.getCause().toString() + e.getLocalizedMessage().toString() + e.getStackTrace().toString() + e.getSuppressed().toString());
+		}
+	}
+	
+	
+	public void showImageScene() {
+		try {
+			FXMLLoader loader = new FXMLLoader();
+			InputStream stream = getClass().getResourceAsStream("/fxml/ImageScene.fxml");
+			AnchorPane imageScene = (AnchorPane) loader.load(stream);
+			
+			imageSceneController = loader.getController();
+			imageSceneController.setMainApp(this);
+			
+			rootLayout.setCenter(imageScene);
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -94,9 +110,8 @@ public class Main extends Application {
 		return this.primaryStage;
 	}
 	
-	public void setDefaultSceneImage(BufferedImage image) {
-		this.defaultSceneController.setOriginalImage(image);
-		this.defaultSceneController.showImage();
+	public void setLineSceneImage(BufferedImage image) {
+		this.lineSceneController.setOriginalImage(image);
 	}
 
 	

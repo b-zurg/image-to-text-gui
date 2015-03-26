@@ -3,15 +3,12 @@ package com.zurg.imagetotext.gui.view;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
+import utils.ImageUtils;
+
 import com.zurg.imagetotext.gui.Main;
 
 import document.analysis.LineComponentAnalyzer;
 import document.analysis.ParagraphComponentAnalyzer;
-import utils.ImageUtils;
-
-
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
@@ -23,11 +20,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.NumberStringConverter;
 
-public class DefaultSceneController {
+public class WordSceneController {
 	@FXML
 	private ScrollPane scrollPane;
 	
@@ -54,22 +49,23 @@ public class DefaultSceneController {
 	@FXML 
 	private RadioButton showLineSplitsButton;
 	
-	private Main mainApp;
 	
+	private Main mainApp;
+
 	private BufferedImage originalImage, blurredImage;
 	private Image originalImageFX, blurredImageFX;
 	
 	private ImageView blurred, original;
 	private Group blended;
 	
-	private ParagraphComponentAnalyzer paragraphAnalyzer;
+	private LineComponentAnalyzer lineAnalyzer;
 	
 	@FXML
 	private void initialize() {		
 		syncSlidersWithTextFields();
 		setSliderProperties();
 		
-		paragraphAnalyzer = new ParagraphComponentAnalyzer();
+		lineAnalyzer = new LineComponentAnalyzer();
 	}
 	
 	private void setSliderProperties() {
@@ -127,13 +123,13 @@ public class DefaultSceneController {
 		if(showLineSplitsButton.isSelected()) {
 			BufferedImage untouchedImage = SwingFXUtils.fromFXImage(originalImageFX, null);
 			BufferedImage blurredImage = SwingFXUtils.fromFXImage(blurredImageFX, null);
-			paragraphAnalyzer.setImages(untouchedImage, blurredImage);
-			paragraphAnalyzer.setThreshold(thresholdLevelSlider.getValue());
+			lineAnalyzer.setImages(untouchedImage, blurredImage);
+			lineAnalyzer.setThreshold(thresholdLevelSlider.getValue());
 			
-			List<Integer> lineSplits = paragraphAnalyzer.getLineSplits();
+//			List<Integer> wordSplits = lineAnalyzer.getWordSubImages();
 						
-			ImageUtils.createHorizontalRedLinesAt(untouchedImage, lineSplits);
-			original.setImage(SwingFXUtils.toFXImage(untouchedImage, null));
+//			ImageUtils.createHorizontalRedLinesAt(untouchedImage, lineSplits);
+//			original.setImage(SwingFXUtils.toFXImage(untouchedImage, null));
 		}
 		if(!showLineSplitsButton.isSelected()) {
 			original.setImage(SwingFXUtils.toFXImage(originalImage, null));
@@ -149,7 +145,6 @@ public class DefaultSceneController {
 		this.blended = new Group(blurred);
 		this.scrollPane.setContent(blended);
 	}
-	
 	
 	public void showImage() {
 		this.scrollPane.setContent(original);
@@ -175,31 +170,7 @@ public class DefaultSceneController {
 		original.preserveRatioProperty().set(true);		
 	}
 	
-	
-
-
 	public void setMainApp(Main main) {
 		this.mainApp = main;
 	}
-	
 }
-
-
-//maybe I'll use this later
-
-/*
-	private void setBlurNeighborhoodSliderActionListener(){
-		blurNeighborhoodSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-//			Integer neighborhood = (int) (newValue.intValue()/10)+1;
-//			this.blurNeighborhoodText.setText(neighborhood.toString());
-
-		});
-	}
-	
-	private void setBlurIterationsSliderActionListener(){
-		blurIterationsSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-//			Integer iterations = (Integer) (newValue.intValue()/10)+1;
-//			this.blurIterationsText.setText(iterations.toString());
-		});
-	}
-*/
