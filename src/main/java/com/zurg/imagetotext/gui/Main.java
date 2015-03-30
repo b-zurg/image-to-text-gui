@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import java.io.InputStream;
 
+import com.zurg.imagetotext.gui.view.FontSceneController;
 import com.zurg.imagetotext.gui.view.ImageSceneController;
 import com.zurg.imagetotext.gui.view.LineSceneController;
 import com.zurg.imagetotext.gui.view.RootLayoutController;
@@ -29,8 +30,9 @@ public class Main extends Application {
 	private ImageSceneController imageSceneController;
 	private LineSceneController lineSceneController;
 	private WordSceneController wordSceneController;
+	private FontSceneController fontSceneController;
 	
-	private AnchorPane imageScene, lineScene, wordScene;
+	private AnchorPane imageScene, lineScene, wordScene, fontScene;
 	
 	
 	@Override
@@ -108,6 +110,22 @@ public class Main extends Application {
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void showFontScene() {
+		try{
+			if(fontScene == null) {
+				FXMLLoader loader = new FXMLLoader();
+				InputStream stream = getClass().getResourceAsStream("/fxml/FontScene.fxml");
+				fontScene = (AnchorPane) loader.load(stream);
+				
+				fontSceneController = loader.getController();
+				fontSceneController.setMainApp(this);
+			}
+			rootLayout.setCenter(fontScene);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

@@ -10,14 +10,12 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.Group;
-import javafx.scene.image.ImageView;
 
 public class WordViewData {
 	private static WordViewData instance = null;
 	
 	private static List<BufferedImage> untouchedImages = Lists.newArrayList();
-	private static List<ImageView> overImageViews = Lists.newArrayList();
-	private static List<ImageView> underImageViews = Lists.newArrayList();
+	private static List<BufferedImage> blurredImages = Lists.newArrayList();
 	private static List<Group> imageGroups = Lists.newArrayList();
 	
 	private static DoubleProperty standardBlurNeighborhood = new SimpleDoubleProperty(9.0);
@@ -40,16 +38,24 @@ public class WordViewData {
 		return instance;
 	}
 
-	public static List<ImageView> getOverImageViews() {
-		return overImageViews;
+	public static List<Group> getImageGroups() {
+		return imageGroups;
 	}
-	public static List<ImageView> getUnderImageViews() {
-		return underImageViews;
-	}
+
 	public static List<BufferedImage> getUntouchedImages() {
 		return untouchedImages;
 	}
+	public static void setUntouchedImages(List<BufferedImage> untouchedImages) {
+		WordViewData.untouchedImages = untouchedImages;
+	}
 	
+	public static List<BufferedImage> getBlurredImages() {
+		return blurredImages;
+	}
+	public static void setBlurredImages(List<BufferedImage> blurredImages) {
+		WordViewData.blurredImages = blurredImages;
+	}
+
 	public static DoubleProperty getStandardBlurNeighborhood() { return standardBlurNeighborhood; }
 	public static DoubleProperty getStandardBlurIterations() { return standardBlurIterations; }
 	public static DoubleProperty getVerticalBlurNeighborhood() { return verticalBlurNeighborhood; }
@@ -59,5 +65,4 @@ public class WordViewData {
 	public static BooleanProperty getShowLineSplits() { return showLineSplits; }
 	public static BooleanProperty getShowOriginalText() { return showOriginalText; }
 	public static BooleanProperty getShowThresholdImage() { return showThresholdImage; }
-	
 }

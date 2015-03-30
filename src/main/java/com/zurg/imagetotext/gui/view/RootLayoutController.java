@@ -72,7 +72,7 @@ public class RootLayoutController {
 	@FXML
 	private void showWordScene() { mainApp.showWordScene(); }
 	@FXML
-	private void showFontScene() {}
+	private void showFontScene() { mainApp.showFontScene(); }
 	@FXML
 	private void showFinishScene() {}
 	

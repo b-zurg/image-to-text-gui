@@ -139,7 +139,7 @@
                                     </VBox>
                                  </children>
                               </AnchorPane>
-                              <Button fx:id="applyButton" mnemonicParsing="false" onAction="#handleDisplaySettings" prefHeight="80.0" prefWidth="300.0" text="Apply">
+                              <Button fx:id="applyButton" mnemonicParsing="false" onAction="#handleApplyButton" prefHeight="80.0" prefWidth="300.0" text="Apply">
                                  <font>
                                     <Font name="Agency FB Bold" size="42.0" />
                                  </font>

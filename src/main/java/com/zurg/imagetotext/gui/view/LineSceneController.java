@@ -113,7 +113,6 @@ public class LineSceneController {
 		slider.setShowTickMarks(true);
 		slider.setSnapToTicks(true);
 	}
-
 	private void syncSlidersWithTextFields() {
 		standardBlurNeighborhoodText.textProperty().bindBidirectional(standardBlurNeighborhoodSlider.valueProperty(), new NumberStringConverter());
 		standardBlurIterationsText.textProperty().bindBidirectional(standardBlurIterationsSlider.valueProperty(), new NumberStringConverter());
@@ -128,7 +127,6 @@ public class LineSceneController {
 		horizontalBlurIterationsSlider.valueProperty().bindBidirectional(LineViewData.getHorizontalBlurIterations());
 		thresholdLevelSlider.valueProperty().bindBidirectional(LineViewData.getThresholdLevel());
 	}
-	
 	private void setToggleButtonValsToSingleton() {
 		overlapTextButton.selectedProperty().bindBidirectional(LineViewData.getShowOriginalText());
 		showLineSplitsButton.selectedProperty().bindBidirectional(LineViewData.getShowLineSplits());
@@ -160,79 +158,53 @@ public class LineSceneController {
 		boolean showLineSplits = LineViewData.getShowLineSplits().getValue();
 		boolean showOriginalText = LineViewData.getShowOriginalText().getValue();
 		boolean showThresholdImage = LineViewData.getShowThresholdImage().getValue();
-		BufferedImage underImage;
-		BufferedImage originalImage;
+		BufferedImage underImage = ImageUtils.copyImage(LineViewData.getBlurredImage());
+		BufferedImage overImage = ImageUtils.copyImage(LineViewData.getUntouchedImage());
 		int overlapMode = 0;
 
-		
-		if(showLineSplits && showOriginalText) {	
-			underImage = ImageUtils.copyImage(LineViewData.getBlurredImage());
-			originalImage = ImageUtils.copyImage(LineViewData.getUntouchedImage());
-			
-			if(showThresholdImage) {
-				ImageUtils.threshold(underImage, LineViewData.getThresholdLevel().get());
-				overlapMode = LineSceneController.THRESHOLDOVERLAY;
-				this.addLineSplitsToImage(underImage);
-			}
-			if(!showThresholdImage) {
-				overlapMode = LineSceneController.BLUROVERLAY;
-			}
-			
-			this.addLineSplitsToImage(originalImage);
-			this.setViewImage(originalImage, overImageView);
-			this.setViewImage(underImage, underImageView);
 
-			this.setOverlapMode(overlapMode);
-			
-		} else if (showLineSplits && !showOriginalText) {
-			underImage = ImageUtils.copyImage(LineViewData.getBlurredImage());
-			overlapMode = LineSceneController.NONE;
-			
+		if (showOriginalText) {
 			if(showThresholdImage) {
-				ImageUtils.threshold(underImage, LineViewData.getThresholdLevel().get());
-			}
-			
-			this.addLineSplitsToImage(underImage);
-			this.setViewImage(underImage, underImageView);
-	
-			this.setOverlapMode(overlapMode);
-			
-		} else if (!showLineSplits && showOriginalText) {
-			originalImage = LineViewData.getUntouchedImage();
-			underImage = ImageUtils.copyImage(LineViewData.getBlurredImage());
-			
-			if(showThresholdImage) {
-				ImageUtils.threshold(underImage, LineViewData.getThresholdLevel().get());
 				overlapMode = LineSceneController.THRESHOLDOVERLAY;
+				ImageUtils.threshold(underImage, LineViewData.getThresholdLevel().get());
+				if(showLineSplits) {
+					this.addLineSplitsToImage(overImage);
+
+				}
 			}
-			if(!showThresholdImage) {
+			else if(!showThresholdImage) {
 				overlapMode = LineSceneController.BLUROVERLAY;
+				if(showLineSplits) {
+					this.addLineSplitsToImage(overImage);
+
+				}
 			}
-			
-			this.setViewImage(originalImage, overImageView);
-			this.setViewImage(underImage, underImageView);
-			
-			this.setOverlapMode(overlapMode);
-			
-		} else if (!showLineSplits && !showOriginalText) {
-			underImage = LineViewData.getBlurredImage();
+		}
+		else if (!showOriginalText) {
 			overlapMode = LineSceneController.NONE;
-			
 			if(showThresholdImage) {
 				ImageUtils.threshold(underImage, LineViewData.getThresholdLevel().get());
+				if(showLineSplits) {
+					this.addLineSplitsToImage(underImage);
+				}
 			}
-			
-			this.setViewImage(underImage, underImageView);
-			this.setOverlapMode(overlapMode);	
+			else if(!showThresholdImage) {
+				if(showLineSplits) {
+					this.addLineSplitsToImage(underImage);
+				}
+			}
 		}
+		
+		setOverlapMode(overlapMode, underImage, overImage);
+		
 	}
 	
-	private void setViewImage(BufferedImage image, ImageView view) {
-		Image img = SwingFXUtils.toFXImage(image, null);
-		view.setImage(img);
-	}
-	
-	private void setOverlapMode(int mode) {
+	private void setOverlapMode(int mode, BufferedImage underImage, BufferedImage overImage) {
+		Image underImageFX = SwingFXUtils.toFXImage(underImage, null);
+		Image overImageFX = SwingFXUtils.toFXImage(overImage, null);
+		underImageView.setImage(underImageFX);
+		overImageView.setImage(overImageFX);
+		
 		Group images = null;
 		if(mode == LineSceneController.BLUROVERLAY) {
 			underImageView.setBlendMode(BlendMode.MULTIPLY);
@@ -244,7 +216,6 @@ public class LineSceneController {
 		}
 		if(mode == LineSceneController.NONE){
 			images = new Group(underImageView);
-
 		}
 		this.scrollPane.setContent(images);
 	}

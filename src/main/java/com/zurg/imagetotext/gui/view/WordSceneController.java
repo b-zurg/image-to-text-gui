@@ -124,65 +124,85 @@ public class WordSceneController {
 	}
 	
 	private void setToggleButtonValsToSingleton() {
-		overlapTextButton.selectedProperty().bindBidirectional(LineViewData.getShowOriginalText());
-		showLineSplitsButton.selectedProperty().bindBidirectional(LineViewData.getShowLineSplits());
-		showThresholdButton.selectedProperty().bindBidirectional(LineViewData.getShowThresholdImage());
+		overlapTextButton.selectedProperty().bindBidirectional(WordViewData.getShowOriginalText());
+		showLineSplitsButton.selectedProperty().bindBidirectional(WordViewData.getShowLineSplits());
+		showThresholdButton.selectedProperty().bindBidirectional(WordViewData.getShowThresholdImage());
 	}
 	
 	private void initImagesToScene() {
 		List<BufferedImage> lineImages = LineViewData.getParagraphAnalyzer().getLineSubImages();
-		WordViewData.getUntouchedImages().addAll(lineImages);
+		WordViewData.setUntouchedImages(lineImages);
 		
-		List<ImageView> overImageViews = WordViewData.getOverImageViews();
-		List<ImageView> underImageViews = WordViewData.getUnderImageViews();
+		List<Group> imageGroups = WordViewData.getImageGroups();
 		
 		for(BufferedImage line : lineImages) {
-			Image overImage = SwingFXUtils.toFXImage(line, null);
+			Image lineImage = SwingFXUtils.toFXImage(line, null);
 			
+			ImageView imageView = new ImageView(lineImage);
+//			imageView.fitWidthProperty().bind(scrollPane.widthProperty());
+			imageView.preserveRatioProperty().set(true);
+			imageView.setBlendMode(BlendMode.MULTIPLY);
 			
-			ImageView underImageView = new ImageView(overImage);
-			underImageView.fitWidthProperty().bind(scrollPane.widthProperty());
-			underImageView.preserveRatioProperty().set(true);
+			Group imageGroup = new Group(imageView);
+			imageGroups.add(imageGroup);
 			
-			ImageView overImageView = new ImageView(overImage);
-			overImageView.fitWidthProperty().bind(scrollPane.widthProperty());
-			overImageView.preserveRatioProperty().set(true);
-			
-			underImageViews.add(underImageView);
-			overImageViews.add(overImageView);
-			
-			underImageView.setBlendMode(BlendMode.MULTIPLY);
-			Group images = new Group(overImageView, underImageView);
-			
-			vbox.getChildren().add(images);
+			vbox.getChildren().add(imageGroup);
 			vbox.getChildren().add(new Separator());
 		}
 	}
 	
+	@FXML private void handleApplyButton() {
+		List<BufferedImage> untouchedImages = WordViewData.getUntouchedImages();
+		List<BufferedImage> blurredImages = WordViewData.getBlurredImages();
+		blurredImages.clear();
+		
+		for(BufferedImage image : untouchedImages) {
+			BufferedImage imageToModify = ImageUtils.copyImage(image);
+			blurImage(imageToModify);
+			blurredImages.add(imageToModify);
+		}
+		handleDisplaySettings();
+	}
+	
+	
+	private void blurImage(BufferedImage image) {
+		
+		int standardNeighborhood = WordViewData.getStandardBlurNeighborhood().intValue();
+		int standardIterations = WordViewData.getStandardBlurIterations().intValue();
+		
+		int verticalNeighborhood = WordViewData.getVerticalBlurNeighborhood().intValue();
+		int verticalIterations = WordViewData.getVerticalBlurIterations().intValue();
+		
+		ImageUtils.blurImageFast(image, standardNeighborhood, standardIterations);
+		ImageUtils.blurImageVertical(image, verticalNeighborhood, verticalIterations);
+		
+	}
+	
 	@FXML
 	private void handleDisplaySettings() {
-		List<ImageView> overImageViews = WordViewData.getOverImageViews();
-		List<ImageView> underImageViews = WordViewData.getUnderImageViews();
+		List<Group> imageGroups = WordViewData.getImageGroups();
 		List<BufferedImage> untouchedImages = WordViewData.getUntouchedImages();
+		List<BufferedImage> blurredImages = WordViewData.getBlurredImages();
 		
-		for(int i = 0; i < overImageViews.size(); i++) {
-			ImageView underImageView = underImageViews.get(i);
-			ImageView overImageView = overImageViews.get(i);
+		for(int i = 0; i < imageGroups.size(); i++) {
 			BufferedImage untouchedImage = untouchedImages.get(i);
-			handleDisplayOneLineImage(underImageView, overImageView, untouchedImage);
+			BufferedImage blurredImage = blurredImages.get(i);
+			Group imageGroup = imageGroups.get(i);
+			handleDisplayOneLineImage(imageGroup, untouchedImage, blurredImage);
 		}
 	}
 	
 
-	private void handleDisplayOneLineImage(ImageView underImageView, ImageView overImageView, BufferedImage untouchedImage) {
+	private void handleDisplayOneLineImage(Group imageGroup, BufferedImage untouchedImage, BufferedImage blurredImage) {
 		int overlapMode = 0;
-		BufferedImage underImage = getBlurredCopyOf(untouchedImage);
+		BufferedImage underImage = ImageUtils.copyImage(blurredImage);
 		BufferedImage overImage = ImageUtils.copyImage(untouchedImage);
 		
 		boolean overlapText = WordViewData.getShowOriginalText().get();
 		boolean showLineSplits = WordViewData.getShowLineSplits().get();
 		boolean showThreshold = WordViewData.getShowThresholdImage().get();
-
+		
+		
 		if(overlapText) {
 			if(showThreshold) {
 				if(showLineSplits) {
@@ -219,54 +239,45 @@ public class WordSceneController {
 			}
 		}
 		
-		Image underfx = SwingFXUtils.toFXImage(underImage, null);
-		Image overfx = SwingFXUtils.toFXImage(overImage, null);
-		underImageView.setImage(underfx);
-		overImageView.setImage(overfx);
-		
-		setOverlapMode(overlapMode, underImageView, overImageView);
+		setOverlapMode(overlapMode, underImage, overImage, imageGroup);
 	}
-	
-	private BufferedImage getBlurredCopyOf(BufferedImage untouchedImage) {
-		BufferedImage imageToModify = ImageUtils.copyImage(untouchedImage);
-		
-		int standardNeighborhood = WordViewData.getStandardBlurNeighborhood().intValue();
-		int standardIterations = WordViewData.getStandardBlurIterations().intValue();
-		
-		int verticalNeighborhood = WordViewData.getVerticalBlurNeighborhood().intValue();
-		int verticalIterations = WordViewData.getVerticalBlurNeighborhood().intValue();
-		
-		ImageUtils.blurImageFast(imageToModify, standardNeighborhood, standardIterations);
-		ImageUtils.blurImageVertical(imageToModify, verticalNeighborhood, verticalIterations);
-		
-		return imageToModify;
-	}
-	
+
 	private void thresholdImage(BufferedImage blurredImage) {
 		double thresholdLevel = WordViewData.getThresholdLevel().get();
 		ImageUtils.threshold(blurredImage, thresholdLevel);
 	}
 	
 	private List<Integer> getWordSplits(BufferedImage blurredImage, BufferedImage originalImage) {
+		double thresholdLevel = WordViewData.getThresholdLevel().get();
 		lineAnalyzer.setUntouchedImage(originalImage);
 		lineAnalyzer.setBlurredImage(blurredImage);
+		lineAnalyzer.setThreshold(thresholdLevel);
 		
 		List<Integer> wordSplits = lineAnalyzer.getWordSplits();
 		return wordSplits;
 	}
 	
-	
-	public void setOverlapMode(int mode, ImageView underView, ImageView overView) {
+	public void setOverlapMode(int mode, BufferedImage underImage, BufferedImage overImage, Group imageGroup) {
+		Image underImageFX = SwingFXUtils.toFXImage(underImage, null);
+		Image overImageFX = SwingFXUtils.toFXImage(overImage, null);
+		ImageView underImageView = new ImageView(underImageFX);
+		ImageView overImageView = new ImageView(overImageFX);
+		imageGroup.getChildren().clear();
+		
 		if(mode == WordSceneController.BLUROVERLAY) {
-			underView.setBlendMode(BlendMode.MULTIPLY);
-		} else if (mode == WordSceneController.THRESHOLDOVERLAY) {
-			underView.setBlendMode(BlendMode.EXCLUSION);
-		} else if (mode == WordSceneController.NONE) {
-			underView.setBlendMode(BlendMode.ADD);
-//			overView.setImage(null);
+			underImageView.setBlendMode(BlendMode.MULTIPLY);
+			imageGroup.getChildren().add(overImageView);
+			imageGroup.getChildren().add(underImageView);
+		}
+		else if (mode == WordSceneController.THRESHOLDOVERLAY) {
+			underImageView.setBlendMode(BlendMode.EXCLUSION);
+			imageGroup.getChildren().add(overImageView);
+			imageGroup.getChildren().add(underImageView);
+		}
+		else if (mode == WordSceneController.NONE) {
+			imageGroup.getChildren().add(underImageView);
 		}
 	}
-	
 	
 	public void setMainApp(Main main) {
 		this.mainApp = main;
