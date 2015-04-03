@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import document.analysis.LineComponentAnalyzer;
+import document.structure.Line;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -30,6 +32,7 @@ public class WordViewData {
 	private static BooleanProperty showLineSplits = new SimpleBooleanProperty(false);
 	private static BooleanProperty showThresholdImage= new SimpleBooleanProperty(false);
 
+	private static LineComponentAnalyzer lineAnalyzer = new LineComponentAnalyzer();
 	
 	public static WordViewData getInstance() {
 		if(instance == null) {
@@ -56,6 +59,14 @@ public class WordViewData {
 		WordViewData.blurredImages = blurredImages;
 	}
 
+	public static LineComponentAnalyzer getLineAnalyzer() {
+		return lineAnalyzer;
+	}
+
+	public static void setLineAnalyzer(LineComponentAnalyzer lineAnalyzer) {
+		WordViewData.lineAnalyzer = lineAnalyzer;
+	}
+	
 	public static DoubleProperty getStandardBlurNeighborhood() { return standardBlurNeighborhood; }
 	public static DoubleProperty getStandardBlurIterations() { return standardBlurIterations; }
 	public static DoubleProperty getVerticalBlurNeighborhood() { return verticalBlurNeighborhood; }
@@ -65,4 +76,14 @@ public class WordViewData {
 	public static BooleanProperty getShowLineSplits() { return showLineSplits; }
 	public static BooleanProperty getShowOriginalText() { return showOriginalText; }
 	public static BooleanProperty getShowThresholdImage() { return showThresholdImage; }
+	
+	public static List<Line> getAdjustedLineObjects() {
+		List<Line> lines = LineViewData.getParagraphAnalyzer().getLineObjects();
+		for(Line line : lines) {
+			line.setStandardBlur(standardBlurNeighborhood.intValue(), standardBlurIterations.intValue());
+			line.setVerticalBlur(verticalBlurNeighborhood.intValue(), verticalBlurIterations.intValue());
+			line.setThreshold(thresholdLevel.get());
+		}
+		return lines;
+	}
 }

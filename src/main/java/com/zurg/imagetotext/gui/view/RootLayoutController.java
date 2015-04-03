@@ -74,7 +74,7 @@ public class RootLayoutController {
 	@FXML
 	private void showFontScene() { mainApp.showFontScene(); }
 	@FXML
-	private void showFinishScene() {}
+	private void showFinishScene() { mainApp.showFinishScene(); }
 	
 	public void setMainApp(Main mainapp) {
 		this.mainApp = mainapp;

@@ -17,7 +17,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 
 
+
 import com.zurg.imagetotext.gui.Main;
+import com.zurg.imagetotext.model.FontViewData;
 import com.zurg.imagetotext.model.LineViewData;
 
 public class FontSceneController {
@@ -33,18 +35,29 @@ public class FontSceneController {
 	
 	
 	BufferedImage lineImage;
-	LetterOCR locr;
 	
 	@FXML
 	private void initialize() {		
-		locr = new LetterOCR();
+		FontViewData.getInstance();
+		
 		setLineImage();
 		setColSettings();
+		bindComponentsToSingleton();
+	}
+
+	private void bindComponentsToSingleton() {
+		enterTextField.textProperty().bindBidirectional(FontViewData.getEnteredText());
+		fontTable.getSelectionModel()
+			.selectedItemProperty()
+			.addListener((observableValue, fontInfo, fontInfo2) -> {
+				FontViewData.getSelectedFont().bind(fontInfo2.getUnprocessedFontNameProperty());
+				LetterOCR.getInstance().setFont(fontInfo2.getUnprocessedFontName());
+			});
 	}
 	
 	private void setLineImage() {
 		List<BufferedImage> lineImages = LineViewData.getParagraphAnalyzer().getLineSubImages();
-		lineImage = lineImages.get(1);
+		lineImage = lineImages.get(0);
 		lineView.setImage(SwingFXUtils.toFXImage(lineImage, null));
 	}
 	
@@ -54,16 +67,16 @@ public class FontSceneController {
 		resultCol.setCellValueFactory(cell -> cell.getValue().getOcrResultsProperty());
 	}
 	
+
+	
 	@FXML
 	private void handleGoButton() {
 		String enteredText = enterTextField.getText();
-		System.out.println("entered text: " + enteredText);
-		List<FontInfo> fontInfo = locr.guessFonts(lineImage, enteredText);
+		List<FontInfo> fontInfo = LetterOCR.getInstance().guessFonts(lineImage, enteredText);
 		
 		ObservableList<FontInfo> fonts = FXCollections.observableArrayList();
 		fonts.addAll(fontInfo);
 		fontTable.setItems(fonts);
-
 	}
 	
 	

@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import java.io.InputStream;
 
+import com.zurg.imagetotext.gui.view.FinishSceneController;
 import com.zurg.imagetotext.gui.view.FontSceneController;
 import com.zurg.imagetotext.gui.view.ImageSceneController;
 import com.zurg.imagetotext.gui.view.LineSceneController;
@@ -31,12 +32,16 @@ public class Main extends Application {
 	private LineSceneController lineSceneController;
 	private WordSceneController wordSceneController;
 	private FontSceneController fontSceneController;
+	private FinishSceneController finishSceneController;
 	
-	private AnchorPane imageScene, lineScene, wordScene, fontScene;
+//	private StateContainer stateContainer;
+	
+	private AnchorPane imageScene, lineScene, wordScene, fontScene, finishScene;
 	
 	
 	@Override
 	public void start(Stage primaryStage) {
+//		this.stateContainer = new StateContainer();
 		this.primaryStage = primaryStage;
 		this.primaryStage.setTitle("Image To Text Converter");
 		
@@ -125,6 +130,22 @@ public class Main extends Application {
 				fontSceneController.setMainApp(this);
 			}
 			rootLayout.setCenter(fontScene);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void showFinishScene() {
+		try{
+			if(finishScene == null) {
+				FXMLLoader loader = new FXMLLoader();
+				InputStream stream = getClass().getResourceAsStream("/fxml/FinishScene.fxml");
+				finishScene = (AnchorPane) loader.load(stream);
+				
+				finishSceneController = loader.getController();
+				finishSceneController.setMainApp(this);
+			}
+			rootLayout.setCenter(finishScene);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

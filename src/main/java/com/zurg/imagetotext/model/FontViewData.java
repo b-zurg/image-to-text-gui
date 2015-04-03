@@ -11,7 +11,7 @@ public class FontViewData {
 	
 	static private ObservableList<String> topFonts = FXCollections.observableArrayList();
 	static private StringProperty enteredText = new SimpleStringProperty();
-	
+	static private StringProperty selectedFont = new SimpleStringProperty();
 	
 	
 	public static FontViewData getInstance() {
@@ -23,5 +23,6 @@ public class FontViewData {
 	
 	public static ObservableList<String> getToFontsList() { return topFonts; }
 	public static StringProperty getEnteredText() { return enteredText; }
+	public static StringProperty getSelectedFont() { return selectedFont; }
 	
 }

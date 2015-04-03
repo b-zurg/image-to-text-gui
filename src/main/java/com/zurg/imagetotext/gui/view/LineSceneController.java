@@ -75,10 +75,6 @@ public class LineSceneController {
 		setToggleButtonValsToSingleton();
 	}
 	
-	private void checkForPreviousImages() {
-		//TODO implement. check LineViewData images and add images to image views
-	}
-	
 	private void setSliderProperties() {
 		setNeighborhoodSliderProperties(standardBlurNeighborhoodSlider);
 		setGeneralSliderProperties(standardBlurNeighborhoodSlider);
@@ -225,10 +221,7 @@ public class LineSceneController {
 		BufferedImage blurredImage = LineViewData.getBlurredImage();
 
 		ParagraphComponentAnalyzer paragraphAnalyzer = LineViewData.getParagraphAnalyzer();
-		
-		if(LineViewData.getHotfixLines().get()) { paragraphAnalyzer.setUseHotfix(true); }
-		if(!LineViewData.getHotfixLines().get()) { paragraphAnalyzer.setUseHotfix(false); }
-		
+
 		paragraphAnalyzer.setImages(untouchedImage, blurredImage);
 		paragraphAnalyzer.setThreshold(thresholdLevelSlider.getValue());
 		

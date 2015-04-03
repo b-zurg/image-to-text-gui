@@ -59,11 +59,9 @@ public class WordSceneController {
 
 	private Main mainApp;
 
-	private LineComponentAnalyzer lineAnalyzer;
 	
 	@FXML
 	private void initialize() {		
-		lineAnalyzer = new LineComponentAnalyzer();
 		WordViewData.getInstance();
 		
 		syncSlidersWithTextFields();
@@ -249,6 +247,7 @@ public class WordSceneController {
 	
 	private List<Integer> getWordSplits(BufferedImage blurredImage, BufferedImage originalImage) {
 		double thresholdLevel = WordViewData.getThresholdLevel().get();
+		LineComponentAnalyzer lineAnalyzer = WordViewData.getLineAnalyzer();
 		lineAnalyzer.setUntouchedImage(originalImage);
 		lineAnalyzer.setBlurredImage(blurredImage);
 		lineAnalyzer.setThreshold(thresholdLevel);
