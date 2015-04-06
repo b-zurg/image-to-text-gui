@@ -16,8 +16,12 @@ public class OverallStateTracker {
 		return instance;
 	}
 	
-	public StateContainer getStateContainerFor(BufferedImage image) {
+	public static StateContainer getStateContainerFor(BufferedImage image) {
 		return states.get(image);
 	}
 	
+	public static void addStateContainerFor(BufferedImage image) {
+		StateContainer newContainer = new StateContainer(image);
+		states.put(image, newContainer);
+	}
 }

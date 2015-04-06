@@ -33,32 +33,14 @@ public class FontSceneController {
 	@FXML TableColumn<FontInfo, String> distanceCol;
 	@FXML TableColumn<FontInfo, String> resultCol;
 	
+	FontViewData fontData;
 	
 	BufferedImage lineImage;
 	
 	@FXML
 	private void initialize() {		
-		FontViewData.getInstance();
-		
-		setLineImage();
 		setColSettings();
-		bindComponentsToSingleton();
-	}
-
-	private void bindComponentsToSingleton() {
-		enterTextField.textProperty().bindBidirectional(FontViewData.getEnteredText());
-		fontTable.getSelectionModel()
-			.selectedItemProperty()
-			.addListener((observableValue, fontInfo, fontInfo2) -> {
-				FontViewData.getSelectedFont().bind(fontInfo2.getUnprocessedFontNameProperty());
-				LetterOCR.getInstance().setFont(fontInfo2.getUnprocessedFontName());
-			});
-	}
-	
-	private void setLineImage() {
-		List<BufferedImage> lineImages = LineViewData.getParagraphAnalyzer().getLineSubImages();
-		lineImage = lineImages.get(0);
-		lineView.setImage(SwingFXUtils.toFXImage(lineImage, null));
+//		initLineImageToScene();
 	}
 	
 	private void setColSettings() {
@@ -67,18 +49,37 @@ public class FontSceneController {
 		resultCol.setCellValueFactory(cell -> cell.getValue().getOcrResultsProperty());
 	}
 	
-
+	public void initLineImageToScene() {
+		List<BufferedImage> lineImages = mainApp.getLineData().getParagraphAnalyzer().getLineSubImages();
+		lineImage = lineImages.get(0);
+		fontData.setLineImageProperty(lineImage);
+	}
+	
+	public void setData(FontViewData fontData) {
+		this.fontData = fontData;
+		bindComponentsToData();
+		initLineImageToScene();
+	}
+	
+	private void bindComponentsToData() {
+		enterTextField.textProperty().bindBidirectional(fontData.getEnteredText());
+		lineView.imageProperty().bind(fontData.getLineImageProperty());
+		fontTable.itemsProperty().bindBidirectional(fontData.getTopFontsProperty());
+		
+		
+		fontTable.getSelectionModel()
+			.selectedItemProperty()
+			.addListener((observableValue, fontInfo, fontInfo2) -> {
+				fontData.getSelectedFont().bind(fontInfo2.getUnprocessedFontNameProperty());
+				LetterOCR.getInstance().setFont(fontInfo2.getUnprocessedFontName());
+			});
+	}
 	
 	@FXML
 	private void handleGoButton() {
 		String enteredText = enterTextField.getText();
-		List<FontInfo> fontInfo = LetterOCR.getInstance().guessFonts(lineImage, enteredText);
-		
-		ObservableList<FontInfo> fonts = FXCollections.observableArrayList();
-		fonts.addAll(fontInfo);
-		fontTable.setItems(fonts);
+		fontData.setTopFonts(LetterOCR.getInstance().guessFonts(lineImage, enteredText));
 	}
-	
 	
 	public void setMainApp(Main main) {
 		this.mainApp = main;

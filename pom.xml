@@ -55,6 +55,14 @@
             <version>4.2</version>
         </dependency>
 
+
+		<!-- Rich Text FX -->
+		<dependency>
+			<groupId>org.fxmisc.richtext</groupId>
+			<artifactId>richtextfx</artifactId>
+			<version>0.6.3</version>
+		</dependency>
+
         <!-- Apache Commons -->
 
         <dependency>

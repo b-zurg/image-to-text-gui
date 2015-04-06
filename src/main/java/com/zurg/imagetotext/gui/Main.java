@@ -10,16 +10,18 @@ import java.io.InputStream;
 
 import com.zurg.imagetotext.gui.view.FinishSceneController;
 import com.zurg.imagetotext.gui.view.FontSceneController;
-import com.zurg.imagetotext.gui.view.ImageSceneController;
+import com.zurg.imagetotext.gui.view.ModificationSceneController;
 import com.zurg.imagetotext.gui.view.LineSceneController;
 import com.zurg.imagetotext.gui.view.RootLayoutController;
-import com.zurg.imagetotext.gui.view.WordSceneController;
+import com.zurg.imagetotext.gui.view.SubImageSceneController;
+import com.zurg.imagetotext.model.FontViewData;
+import com.zurg.imagetotext.model.LineViewData;
+import com.zurg.imagetotext.model.ModificationViewData;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 
@@ -27,26 +29,32 @@ import javafx.scene.layout.BorderPane;
 public class Main extends Application {
 	private Stage primaryStage;
 	private BorderPane rootLayout;
+	
 	private RootLayoutController rootLayoutController;
-	private ImageSceneController imageSceneController;
+	private ModificationSceneController modificationSceneController;
 	private LineSceneController lineSceneController;
-	private WordSceneController wordSceneController;
 	private FontSceneController fontSceneController;
 	private FinishSceneController finishSceneController;
+	private SubImageSceneController subImageSceneController;
+
+
+	private ModificationViewData modificationData;
 	
-//	private StateContainer stateContainer;
+	public StateContainer currentStateContainer = new StateContainer();
 	
-	private AnchorPane imageScene, lineScene, wordScene, fontScene, finishScene;
-	
-	
+
+	private AnchorPane imageScene, lineScene, fontScene, finishScene, subImageScene;
+
+
 	@Override
 	public void start(Stage primaryStage) {
-//		this.stateContainer = new StateContainer();
+		//		this.stateContainer = new StateContainer();
 		this.primaryStage = primaryStage;
 		this.primaryStage.setTitle("Image To Text Converter");
-		
+
 		initRootLayout();
-		showLineScene();
+		showModificationScene();
+		showSubImagesScene();
 	}
 
 	public void initRootLayout() {
@@ -58,7 +66,7 @@ public class Main extends Application {
 			rootLayoutController = loader.getController();
 			rootLayoutController.setMainApp(this);
 
-			
+
 			Scene scene = new Scene(rootLayout);
 			primaryStage.setScene(scene);
 			primaryStage.show();
@@ -66,101 +74,151 @@ public class Main extends Application {
 			System.err.println("Could not load resource because of: " + e);
 		}
 	}
-	
-	public void showLineScene() {
+
+	public void showSubImagesScene() {
 		try {
-			if(lineScene == null) {
+			if(subImageScene == null) {
+				FXMLLoader loader = new FXMLLoader();
+				InputStream stream = getClass().getResourceAsStream("/fxml/SubImageScene.fxml");
+				this.subImageScene = (AnchorPane) loader.load(stream);
+
+				subImageSceneController = loader.getController();
+				subImageSceneController.setMainApp(this);
+
+			}
+			rootLayout.setBottom(subImageScene);	
+
+
+		} catch (IOException e) {
+			System.err.println("Could not load resource because of: " + e);
+		}
+	}
+
+	public void showLineScene() {
+
+		try {
+//			if(lineScene == null) {
 				FXMLLoader loader = new FXMLLoader();
 				InputStream stream = getClass().getResourceAsStream("/fxml/LineScene.fxml");
 				lineScene = (AnchorPane) loader.load(stream);
-				
-				lineSceneController = loader.getController();
-				lineSceneController.setMainApp(this);
-			}
-			rootLayout.setCenter(lineScene);
 
-		} catch (IOException e) {
-    		System.err.println("Could not load resource because of: " + e + e.getCause().toString() + e.getLocalizedMessage().toString() + e.getStackTrace().toString() + e.getSuppressed().toString());
-		}
-	}
-	
-	public void showWordScene() {
-		try {
-			if(wordScene == null) {
-				FXMLLoader loader = new FXMLLoader();
-				InputStream stream = getClass().getResourceAsStream("/fxml/WordScene.fxml");
-				wordScene = (AnchorPane) loader.load(stream);
-				
-				wordSceneController = loader.getController();
-				wordSceneController.setMainApp(this);
-			}
-			rootLayout.setCenter(wordScene);
+				lineSceneController = loader.getController();
+
+				lineSceneController.setMainApp(this);
+				lineSceneController.setData(getLineData());
+//			}
+//			lineSceneController.setData(getLineData());
+			rootLayoutController.setCenterPane(lineScene);
+
 		} catch (IOException e) {
 			System.err.println("Could not load resource because of: " + e + e.getCause().toString() + e.getLocalizedMessage().toString() + e.getStackTrace().toString() + e.getSuppressed().toString());
 		}
 	}
-	
-	
-	public void showImageScene() {
+
+
+	public void showModificationScene() {
 		try {
 			if(imageScene == null) {
 				FXMLLoader loader = new FXMLLoader();
-				InputStream stream = getClass().getResourceAsStream("/fxml/ImageScene.fxml");
+				InputStream stream = getClass().getResourceAsStream("/fxml/ModificationScene.fxml");
 				imageScene = (AnchorPane) loader.load(stream);
-				
-				imageSceneController = loader.getController();
-				imageSceneController.setMainApp(this);
+
+				modificationSceneController = loader.getController();
+				modificationSceneController.setMainApp(this);
 			}
-			rootLayout.setCenter(imageScene);
+			rootLayoutController.setCenterPane(imageScene);
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void showFontScene() {
 		try{
-			if(fontScene == null) {
+//			if(fontScene == null) {
 				FXMLLoader loader = new FXMLLoader();
 				InputStream stream = getClass().getResourceAsStream("/fxml/FontScene.fxml");
 				fontScene = (AnchorPane) loader.load(stream);
-				
+
 				fontSceneController = loader.getController();
 				fontSceneController.setMainApp(this);
-			}
-			rootLayout.setCenter(fontScene);
+				fontSceneController.setData(getFontData());
+//			}
+//			fontSceneController.setData(getFontData());
+			rootLayoutController.setCenterPane(fontScene);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void showFinishScene() {
 		try{
 			if(finishScene == null) {
 				FXMLLoader loader = new FXMLLoader();
 				InputStream stream = getClass().getResourceAsStream("/fxml/FinishScene.fxml");
 				finishScene = (AnchorPane) loader.load(stream);
-				
+
 				finishSceneController = loader.getController();
 				finishSceneController.setMainApp(this);
 			}
-			rootLayout.setCenter(finishScene);
+			rootLayoutController.setCenterPane(finishScene);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public LineViewData getLineData() {
+		return currentStateContainer.getLineData();
+	}
+	public FontViewData getFontData() {
+		return currentStateContainer.getFontData();
+	}
+	public ModificationViewData getModificationData() {
+		return currentStateContainer.getModificationData();
+	}
+	
+	public void setStateContainerTo(StateContainer container) {
+		this.currentStateContainer = container;
+//		System.out.println("is container null? " + (container == null));
+//		System.out.println("is fontData null? " + (getFontData() == null));
+//		showFontScene();
+		showLineScene();
+//		fontSceneController.setData(getFontData());
+//		lineSceneController.setData(getLineData());
 	}
 	
 	public Stage getPrimaryStage() {
 		return this.primaryStage;
 	}
-	
+
 	public void setLineSceneImage(BufferedImage image) {
+		showLineScene();
 		this.lineSceneController.setOriginalImage(image);
 	}
 
-	
+
 	public static void main(String[] args) {
 		launch(args);
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+//	public void setLineData(LineViewData data) {
+//	currentStateContainer.setLineData(data);
+//}
+//public void setFontData(FontViewData data) {
+//	currentStateContainer.setFontData(data);
+//}
+//public void setModificationData(ModificationViewData data) {
+//	currentStateContainer.setModificationData(data);
+//}
 }

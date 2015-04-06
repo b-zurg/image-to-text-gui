@@ -2,7 +2,7 @@ package com.zurg.imagetotext.gui.view;
 
 import com.zurg.imagetotext.gui.Main;
 
-public class ImageSceneController {
+public class ModificationSceneController {
 	private Main mainApp;
 	
 	

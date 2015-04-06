@@ -3,46 +3,58 @@ package com.zurg.imagetotext.gui.view;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-import com.zurg.imagetotext.gui.Main;
-import com.zurg.imagetotext.model.FontViewData;
-import com.zurg.imagetotext.model.LineViewData;
-import com.zurg.imagetotext.model.WordViewData;
+import org.fxmisc.richtext.StyleClassedTextArea;
 
-import document.analysis.LineComponentAnalyzer;
-import document.analysis.WordComponentAnalyzer;
-import document.structure.Line;
-import document.structure.Word;
+import com.zurg.imagetotext.gui.Main;
+import com.zurg.imagetotext.model.LineViewData;
+
 import recognition.LetterOCR;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.text.Font;
 
 public class FinishSceneController {
 
 	@FXML private Button convertButton;
-	@FXML private TextFlow textArea;
+	@FXML private ScrollPane textPane;
+//	@FXML private TextFlow textArea;
 	
-	Main mainApp;
+	private Main mainApp;
 	
 	
 	@FXML
 	private void initialize() {
-		System.out.println("hello");
 	}
 	
 	@FXML
 	private void handleConvert() {
 		String paragraph = "";
-		List<Line> lines = WordViewData.getAdjustedLineObjects();
-		List<BufferedImage> lineImages = LineViewData.getParagraphAnalyzer().getLineSubImages();
-		LetterOCR.getInstance().setPageSegmentationMode(LetterOCR.LINE);
+		List<BufferedImage> lineImages = mainApp.getLineData().getParagraphAnalyzer().getLineSubImages();
+		LetterOCR.getInstance();
+		LetterOCR.setPageSegmentationMode(LetterOCR.LINE);
 		for(BufferedImage image : lineImages) {
-			paragraph += LetterOCR.recognize(image);
+			paragraph += LetterOCR.recognize(image).trim()+"\n";
 		}
+		
+		StyleClassedTextArea textArea = new StyleClassedTextArea();
+		
 
-		Text t1 = new Text(paragraph);
-		textArea.getChildren().add(t1);
+//		textArea.setScaleShape(true);		
+		textArea.appendText(paragraph);
+		textArea.setFont(LetterOCR.getFont(30));
+		
+//		TextArea ta = new TextArea();
+//		ta.setText(paragraph);
+//		ta.setFont(LetterOCR.getFont(20.0));
+		
+		textPane.setContent(textArea);
+		
+		textPane.setFitToHeight(true);
+		textPane.setFitToWidth(true);
+		textPane.setPadding(new Insets(10, 10, 10, 10));
 	}
 	
 	

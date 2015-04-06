@@ -2,62 +2,85 @@ package com.zurg.imagetotext.gui.view;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.imageio.ImageIO;
+
 
 import com.zurg.imagetotext.gui.Main;
+import com.zurg.imagetotext.gui.OverallStateTracker;
+import com.zurg.imagetotext.gui.components.ImageButton;
 
-import javafx.embed.swing.SwingFXUtils;
+import utils.ImageUtils;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
-import javafx.scene.image.Image;
+import javafx.scene.control.Separator;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 
 public class RootLayoutController {
-	@FXML 
-	private MenuItem openImageMenuItem;
-	@FXML
-	private MenuItem closeAppMenuItem;
+	@FXML private MenuItem openImageMenuItem;
+	@FXML private MenuItem closeAppMenuItem;
+	@FXML private MenuItem openMultipleImageMenuItem;
 	
-	@FXML
-	private Button showImageScene;
-	@FXML
-	private Button showLineScene;
-	@FXML
-	private Button showWordScene;
-	@FXML
-	private Button showFontScene;
-	@FXML
-	private Button showFinishScene;
+	@FXML private VBox vbox;
+	@FXML private BorderPane centerPane;
+	
+	@FXML private Button showModificationScene;
+	@FXML private Button showLineScene;
+	@FXML private Button showFontScene;
+	@FXML private Button showFinishScene;
 	
 	private Main mainApp;
-	private LineSceneController defaultSceneController;
 	
 	@FXML
 	private void openImage(){
-        FileChooser fileChooser = new FileChooser();
+		FileChooser fileChooser = createGeneralFileChooser();
+        File file = fileChooser.showOpenDialog(null);
         
-        //Set extension filter
+        if(file != null) {
+        	BufferedImage buffImage = ImageUtils.openImageFromFile(file);
+        	mainApp.setLineSceneImage(buffImage);
+        }
+	}
+	
+	@FXML
+	private void openImageMultiple() {
+		FileChooser fileChooser = createGeneralFileChooser();
+        List<File> fileList = fileChooser.showOpenMultipleDialog(null);
+        
+        if(fileList != null) {
+			List<BufferedImage> images = fileList.stream()
+					.map(f -> ImageUtils.openImageFromFile(f))
+					.collect(Collectors.toList());
+			images.stream().forEach(i -> addImageToSelectionPane(i));
+	        mainApp.setStateContainerTo(OverallStateTracker.getStateContainerFor(images.get(0)));
+		}
+	}
+	
+	private FileChooser createGeneralFileChooser() {
+        FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilterAll = new FileChooser.ExtensionFilter("All Files (*.)", "*.*");
         FileChooser.ExtensionFilter extFilterJPG = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.JPG");
         FileChooser.ExtensionFilter extFilterPNG = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.PNG");
         fileChooser.getExtensionFilters().addAll(extFilterAll, extFilterJPG, extFilterPNG);
-          
-        //Show open file dialog*
-        File file = fileChooser.showOpenDialog(null);
-        
-        try {
-        	if(file != null) {
-	        	BufferedImage buffImage = ImageIO.read(file);
-	        	mainApp.setLineSceneImage(buffImage);
-        	}
-        	
-        } catch (IOException  e) {
-        	System.out.println("Could not open image because of: " + e);
-        }
+        return fileChooser;
+	}
+	
+	private void addImageToSelectionPane(BufferedImage image) {
+		OverallStateTracker.getInstance();
+		OverallStateTracker.addStateContainerFor(image);
+		ImageButton imageButton = new ImageButton(image, 200);
+		imageButton.setOnAction((event) -> {
+			mainApp.setStateContainerTo(OverallStateTracker.getStateContainerFor(image));		
+		});
+
+		vbox.getChildren().add(imageButton);
+		vbox.getChildren().add(new Separator());
 	}
 	
 	@FXML 
@@ -66,11 +89,9 @@ public class RootLayoutController {
 	}
 	
 	@FXML
-	private void showImageScene() { mainApp.showImageScene(); }
+	private void showModificationScene() { mainApp.showModificationScene(); }
 	@FXML
 	private void showLineScene() { mainApp.showLineScene(); }
-	@FXML
-	private void showWordScene() { mainApp.showWordScene(); }
 	@FXML
 	private void showFontScene() { mainApp.showFontScene(); }
 	@FXML
@@ -80,7 +101,7 @@ public class RootLayoutController {
 		this.mainApp = mainapp;
 	}
 	
-
-
-	
+	public void setCenterPane(Node node) {
+		centerPane.setCenter(node);
+	}
 }

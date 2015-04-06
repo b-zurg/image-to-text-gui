@@ -6,15 +6,10 @@ import java.util.List;
 import com.zurg.imagetotext.gui.Main;
 import com.zurg.imagetotext.model.LineViewData;
 
-import document.analysis.LineComponentAnalyzer;
 import document.analysis.ParagraphComponentAnalyzer;
 import utils.ImageUtils;
 
 
-import utils.MyImageIO;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
@@ -23,10 +18,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.BlendMode;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.NumberStringConverter;
 
 public class LineSceneController {
@@ -56,24 +48,37 @@ public class LineSceneController {
 	@FXML private RadioButton overlapTextButton;
 	@FXML private RadioButton showLineSplitsButton;
 	@FXML private RadioButton showThresholdButton;
-	@FXML private RadioButton hotfixLinesButton;
 	
 	private Main mainApp;
-		
+	private LineViewData lineData;
+	
 	private static int NONE = 0, BLUROVERLAY = 1, THRESHOLDOVERLAY = 2;
 	
-	private ImageView underImageView, overImageView;
+	private ImageView underImageView = new ImageView();
+	private ImageView overImageView = new ImageView();
 	
 
 	@FXML
 	private void initialize() {		
-		LineViewData.getInstance();
 		
 		syncSlidersWithTextFields();
 		setSliderProperties();
-		bindSlidersToSingleton();	
-		setToggleButtonValsToSingleton();
 	}
+	
+	public void setData(LineViewData lineData) {
+		this.lineData = lineData;
+		
+		bindSlidersToData();	
+		setToggleButtonValsToData();
+		bindImageViewsToData();
+		if(lineData.getUntouchedImage() != null && lineData.getBlurredImage()!= null) { 
+			handleRadioButtonConfigs(); 
+		}
+		if(lineData.getUntouchedImage() != null && lineData.getBlurredImage() == null) {
+			initializeImageViews();
+		}
+	}
+	
 	
 	private void setSliderProperties() {
 		setNeighborhoodSliderProperties(standardBlurNeighborhoodSlider);
@@ -116,34 +121,46 @@ public class LineSceneController {
 		horizontalBlurIterationsText.textProperty().bindBidirectional(horizontalBlurIterationsSlider.valueProperty(), new NumberStringConverter());
 		thresholdLevelText.textProperty().bindBidirectional(thresholdLevelSlider.valueProperty(), new NumberStringConverter());
 	}	
-	private void bindSlidersToSingleton() {
-		standardBlurNeighborhoodSlider.valueProperty().bindBidirectional(LineViewData.getStandardBlurNeighborhood());
-		standardBlurIterationsSlider.valueProperty().bindBidirectional(LineViewData.getStandardBlurIterations());
-		horizontalBlurNeighborhoodSlider.valueProperty().bindBidirectional(LineViewData.getHorizontalBlurNeighborhood());
-		horizontalBlurIterationsSlider.valueProperty().bindBidirectional(LineViewData.getHorizontalBlurIterations());
-		thresholdLevelSlider.valueProperty().bindBidirectional(LineViewData.getThresholdLevel());
+	
+	private void bindSlidersToData() {
+//		standardBlurNeighborhoodSlider.setValue(lineData.getStandardBlurNeighborhood().get());
+//		standardBlurIterationsSlider.setValue(lineData.getStandardBlurIterations().get());
+//		horizontalBlurNeighborhoodSlider.setValue(lineData.getHorizontalBlurNeighborhood().get());
+//		horizontalBlurIterationsSlider.setValue(lineData.getHorizontalBlurIterations().get());
+//		thresholdLevelSlider.setValue(lineData.getThresholdLevel().get());
+//		
+		standardBlurNeighborhoodSlider.valueProperty().bindBidirectional(lineData.getStandardBlurNeighborhood());
+		standardBlurIterationsSlider.valueProperty().bindBidirectional(lineData.getStandardBlurIterations());
+		horizontalBlurNeighborhoodSlider.valueProperty().bindBidirectional(lineData.getHorizontalBlurNeighborhood());
+		horizontalBlurIterationsSlider.valueProperty().bindBidirectional(lineData.getHorizontalBlurIterations());
+		thresholdLevelSlider.valueProperty().bindBidirectional(lineData.getThresholdLevel());
 	}
-	private void setToggleButtonValsToSingleton() {
-		overlapTextButton.selectedProperty().bindBidirectional(LineViewData.getShowOriginalText());
-		showLineSplitsButton.selectedProperty().bindBidirectional(LineViewData.getShowLineSplits());
-		showThresholdButton.selectedProperty().bindBidirectional(LineViewData.getShowThresholdImage());
-		hotfixLinesButton.selectedProperty().bindBidirectional(LineViewData.getHotfixLines());
+	private void setToggleButtonValsToData() {
+		overlapTextButton.selectedProperty().bindBidirectional(lineData.getShowOriginalText());
+		showLineSplitsButton.selectedProperty().bindBidirectional(lineData.getShowLineSplits());
+		showThresholdButton.selectedProperty().bindBidirectional(lineData.getShowThresholdImage());
 	}
+	private void bindImageViewsToData() {
+		underImageView.imageProperty().bindBidirectional(lineData.getUnderImageProperty());
+		overImageView.imageProperty().bindBidirectional(lineData.getOverImageProperty());
+	}
+	
 	
 	
 	@FXML
 	private void handleApplyButtonClick(){
-		int standardBlurIterations = LineViewData.getStandardBlurIterations().intValue();
-		int standardBlurNeighborhood = LineViewData.getStandardBlurNeighborhood().intValue();
-		int horizontalBlurIterations = LineViewData.getHorizontalBlurIterations().intValue();
-		int horizontalBlurNeighborhood = LineViewData.getHorizontalBlurNeighborhood().intValue();
+		int standardBlurIterations = lineData.getStandardBlurIterations().intValue();
+		int standardBlurNeighborhood = lineData.getStandardBlurNeighborhood().intValue();
+		int horizontalBlurIterations = lineData.getHorizontalBlurIterations().intValue();
+		int horizontalBlurNeighborhood = lineData.getHorizontalBlurNeighborhood().intValue();
 		
 		
-		BufferedImage imageToBlur = ImageUtils.copyImage(LineViewData.getUntouchedImage());
+		BufferedImage imageToBlur = ImageUtils.copyImage(lineData.getUntouchedImage());
 		
 		ImageUtils.blurImageFast(imageToBlur, standardBlurNeighborhood, standardBlurIterations);
 		ImageUtils.blurImageHorizontal(imageToBlur, horizontalBlurNeighborhood, horizontalBlurIterations);
-		LineViewData.setBlurredImage(imageToBlur);
+		lineData.setBlurredImage(imageToBlur);
+		lineData.setUnderImageProperty(imageToBlur);
 		
 		this.handleRadioButtonConfigs();
 	}
@@ -151,35 +168,33 @@ public class LineSceneController {
 	@FXML
 	private void handleRadioButtonConfigs() {
 		
-		boolean showLineSplits = LineViewData.getShowLineSplits().getValue();
-		boolean showOriginalText = LineViewData.getShowOriginalText().getValue();
-		boolean showThresholdImage = LineViewData.getShowThresholdImage().getValue();
-		BufferedImage underImage = ImageUtils.copyImage(LineViewData.getBlurredImage());
-		BufferedImage overImage = ImageUtils.copyImage(LineViewData.getUntouchedImage());
+		boolean showLineSplits = lineData.getShowLineSplits().getValue();
+		boolean showOriginalText = lineData.getShowOriginalText().getValue();
+		boolean showThresholdImage = lineData.getShowThresholdImage().getValue();
+		BufferedImage overImage = ImageUtils.copyImage(lineData.getUntouchedImage());
+		BufferedImage underImage = ImageUtils.copyImage(lineData.getBlurredImage());
 		int overlapMode = 0;
 
 
 		if (showOriginalText) {
 			if(showThresholdImage) {
 				overlapMode = LineSceneController.THRESHOLDOVERLAY;
-				ImageUtils.threshold(underImage, LineViewData.getThresholdLevel().get());
+				ImageUtils.threshold(underImage, lineData.getThresholdLevel().get());
 				if(showLineSplits) {
 					this.addLineSplitsToImage(overImage);
-
 				}
 			}
 			else if(!showThresholdImage) {
 				overlapMode = LineSceneController.BLUROVERLAY;
 				if(showLineSplits) {
 					this.addLineSplitsToImage(overImage);
-
 				}
 			}
 		}
 		else if (!showOriginalText) {
 			overlapMode = LineSceneController.NONE;
 			if(showThresholdImage) {
-				ImageUtils.threshold(underImage, LineViewData.getThresholdLevel().get());
+				ImageUtils.threshold(underImage, lineData.getThresholdLevel().get());
 				if(showLineSplits) {
 					this.addLineSplitsToImage(underImage);
 				}
@@ -190,16 +205,12 @@ public class LineSceneController {
 				}
 			}
 		}
-		
 		setOverlapMode(overlapMode, underImage, overImage);
-		
 	}
 	
 	private void setOverlapMode(int mode, BufferedImage underImage, BufferedImage overImage) {
-		Image underImageFX = SwingFXUtils.toFXImage(underImage, null);
-		Image overImageFX = SwingFXUtils.toFXImage(overImage, null);
-		underImageView.setImage(underImageFX);
-		overImageView.setImage(overImageFX);
+		lineData.setUnderImageProperty(underImage);
+		lineData.setOverImageProperty(overImage);
 		
 		Group images = null;
 		if(mode == LineSceneController.BLUROVERLAY) {
@@ -217,11 +228,11 @@ public class LineSceneController {
 	}
 	
 	private void addLineSplitsToImage(BufferedImage image) {
-		BufferedImage untouchedImage = LineViewData.getUntouchedImage();
-		BufferedImage blurredImage = LineViewData.getBlurredImage();
+		BufferedImage untouchedImage = lineData.getUntouchedImage();
+		BufferedImage blurredImage = lineData.getUnderBufferedImage();
 
-		ParagraphComponentAnalyzer paragraphAnalyzer = LineViewData.getParagraphAnalyzer();
-
+		ParagraphComponentAnalyzer paragraphAnalyzer = lineData.getParagraphAnalyzer();
+		
 		paragraphAnalyzer.setImages(untouchedImage, blurredImage);
 		paragraphAnalyzer.setThreshold(thresholdLevelSlider.getValue());
 		
@@ -232,24 +243,22 @@ public class LineSceneController {
 
 	
 	public void setOriginalImage(BufferedImage image) {
-		LineViewData.setBlurredImage(ImageUtils.copyImage(image));
-		LineViewData.setUntouchedImage(ImageUtils.copyImage(image));
+		lineData.setUntouchedImage(ImageUtils.copyImage(image));
 		
 		initializeImageViews();
 	}
 	
 	private void initializeImageViews() {	
-		Image originalImageFX = SwingFXUtils.toFXImage(LineViewData.getUntouchedImage(), null);
-		Image blurredImageFX = SwingFXUtils.toFXImage(LineViewData.getBlurredImage(), null);
+		BufferedImage original = lineData.getUntouchedImage();
 	
-		underImageView = new ImageView(blurredImageFX);
+		lineData.setUnderImageProperty(original);
 		underImageView.fitWidthProperty().bind(scrollPane.widthProperty());
 		underImageView.preserveRatioProperty().set(true);
-		
-		overImageView = new ImageView(originalImageFX);		
+
+		lineData.setOverImageProperty(original);
 		overImageView.fitWidthProperty().bind(scrollPane.widthProperty());
 		overImageView.preserveRatioProperty().set(true);	
-		
+				
 		addImageViewsToScrollPane();
 	}
 	
@@ -266,7 +275,6 @@ public class LineSceneController {
 
 
 //maybe I'll use this later
-
 /*
 	private void setBlurNeighborhoodSliderActionListener(){
 		blurNeighborhoodSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -275,44 +283,10 @@ public class LineSceneController {
 
 		});
 	}
-	
 	private void setBlurIterationsSliderActionListener(){
 		blurIterationsSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
 //			Integer iterations = (Integer) (newValue.intValue()/10)+1;
 //			this.blurIterationsText.setText(iterations.toString());
 		});
 	}
-
-
-@FXML 
-	private void overlapOriginalText() {
-		if(overlapTextButton.isSelected()) {
-			underImageView.setBlendMode(BlendMode.MULTIPLY);
-			blended = new Group(overImageView, underImageView);
-			this.scrollPane.setContent(blended);
-		}
-		if(!overlapTextButton.isSelected()) {
-			this.scrollPane.setContent(new Group(underImageView));
-		}
-	}
-
-//	@FXML
-//	private void showLineSplits() {
-//		if(showLineSplitsButton.isSelected()) {
-//			BufferedImage untouchedImage = SwingFXUtils.fromFXImage(originalImageFX, null);
-//			BufferedImage blurredImage = SwingFXUtils.fromFXImage(blurredImageFX, null);
-//			paragraphAnalyzer.setImages(untouchedImage, blurredImage);
-//			paragraphAnalyzer.setThreshold(thresholdLevelSlider.getValue());
-//			
-//			List<Integer> lineSplits = paragraphAnalyzer.getLineSplits();
-//						
-//			ImageUtils.createHorizontalRedLinesAt(untouchedImage, lineSplits);
-//			overImageView.setImage(SwingFXUtils.toFXImage(untouchedImage, null));
-//		}
-//		if(!showLineSplitsButton.isSelected()) {
-//			overImageView.setImage(SwingFXUtils.toFXImage(originalImage, null));
-//		}
-//	}
-*
-*
 */
