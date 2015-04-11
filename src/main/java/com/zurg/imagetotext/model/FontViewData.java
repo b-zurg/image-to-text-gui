@@ -20,6 +20,7 @@ public class FontViewData {
 	private ObjectProperty<ObservableList<FontInfo>> topFontsProperty = new SimpleObjectProperty<ObservableList<FontInfo>>();
 	
 	
+	
 	private StringProperty enteredText = new SimpleStringProperty();
 	private StringProperty selectedFont = new SimpleStringProperty();
 	
@@ -49,4 +50,5 @@ public class FontViewData {
 		Image fxImage = SwingFXUtils.toFXImage(image, null);
 		setLineImageProperty(fxImage);
 	}
+
 }

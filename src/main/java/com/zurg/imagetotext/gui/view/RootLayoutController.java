@@ -7,9 +7,12 @@ import java.util.stream.Collectors;
 
 
 
+
+
 import com.zurg.imagetotext.gui.Main;
-import com.zurg.imagetotext.gui.OverallStateTracker;
 import com.zurg.imagetotext.gui.components.ImageButton;
+import com.zurg.imagetotext.gui.state.OverallStateContainer;
+import com.zurg.imagetotext.gui.state.SubImageStateTracker;
 
 import utils.ImageUtils;
 import javafx.fxml.FXML;
@@ -25,10 +28,10 @@ import javafx.stage.FileChooser;
 public class RootLayoutController {
 	@FXML private MenuItem openImageMenuItem;
 	@FXML private MenuItem closeAppMenuItem;
-	@FXML private MenuItem openMultipleImageMenuItem;
 	
 	@FXML private VBox vbox;
 	@FXML private BorderPane centerPane;
+	
 	
 	@FXML private Button showModificationScene;
 	@FXML private Button showLineScene;
@@ -40,17 +43,6 @@ public class RootLayoutController {
 	@FXML
 	private void openImage(){
 		FileChooser fileChooser = createGeneralFileChooser();
-        File file = fileChooser.showOpenDialog(null);
-        
-        if(file != null) {
-        	BufferedImage buffImage = ImageUtils.openImageFromFile(file);
-        	mainApp.setLineSceneImage(buffImage);
-        }
-	}
-	
-	@FXML
-	private void openImageMultiple() {
-		FileChooser fileChooser = createGeneralFileChooser();
         List<File> fileList = fileChooser.showOpenMultipleDialog(null);
         
         if(fileList != null) {
@@ -58,8 +50,7 @@ public class RootLayoutController {
 					.map(f -> ImageUtils.openImageFromFile(f))
 					.collect(Collectors.toList());
 			images.stream().forEach(i -> addImageToSelectionPane(i));
-	        mainApp.setStateContainerTo(OverallStateTracker.getStateContainerFor(images.get(0)));
-		}
+        }
 	}
 	
 	private FileChooser createGeneralFileChooser() {
@@ -72,11 +63,12 @@ public class RootLayoutController {
 	}
 	
 	private void addImageToSelectionPane(BufferedImage image) {
-		OverallStateTracker.getInstance();
-		OverallStateTracker.addStateContainerFor(image);
+		OverallStateContainer.getInstance();
+		OverallStateContainer.addSubImageTrackerFor(image);		
+		
 		ImageButton imageButton = new ImageButton(image, 200);
 		imageButton.setOnAction((event) -> {
-			mainApp.setStateContainerTo(OverallStateTracker.getStateContainerFor(image));		
+			mainApp.setSubImageTrackerTo(OverallStateContainer.getSubImageTrackerForImage(image));		
 		});
 
 		vbox.getChildren().add(imageButton);
@@ -103,5 +95,8 @@ public class RootLayoutController {
 	
 	public void setCenterPane(Node node) {
 		centerPane.setCenter(node);
+	}
+	public void setBottomPane(Node node) {
+		centerPane.setBottom(node);
 	}
 }

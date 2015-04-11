@@ -1,7 +1,8 @@
-package com.zurg.imagetotext.gui;
+package com.zurg.imagetotext.gui.state;
 
 import java.awt.image.BufferedImage;
 
+import com.zurg.imagetotext.model.FinishSceneData;
 import com.zurg.imagetotext.model.FontViewData;
 import com.zurg.imagetotext.model.LineViewData;
 import com.zurg.imagetotext.model.ModificationViewData;
@@ -9,11 +10,9 @@ import com.zurg.imagetotext.model.ModificationViewData;
 public class StateContainer {
 	private LineViewData lineData = new LineViewData();
 	private FontViewData fontData = new FontViewData();
-	private ModificationViewData modificationData = new ModificationViewData();
+	private FinishSceneData finishData = new FinishSceneData();
 	
-	public StateContainer(BufferedImage image) {
-		this.lineData.setUntouchedImage(image);
-	}
+
 	public StateContainer() {};
 	
 	
@@ -30,10 +29,11 @@ public class StateContainer {
 	public void setFontData(FontViewData fontData) {
 		this.fontData = fontData;
 	}
-	public ModificationViewData getModificationData() {
-		return modificationData;
+
+	public FinishSceneData getFinishData() {
+		return finishData;
 	}
-	public void setModificationData(ModificationViewData modificationData) {
-		this.modificationData = modificationData;
+	public void setFinishData(FinishSceneData finishData) {
+		this.finishData = finishData;
 	}
 }
