@@ -56,9 +56,10 @@ public class Main extends Application {
 		//		this.stateContainer = new StateContainer();
 		this.primaryStage = primaryStage;
 		this.primaryStage.setTitle("Image To Text Converter");
-
+		
+		
 		initRootLayout();
-		showModificationScene();
+//		showModificationScene();
 		showSubImagesScene();
 	}
 
@@ -73,6 +74,7 @@ public class Main extends Application {
 
 
 			Scene scene = new Scene(rootLayout);
+//			scene.getStylesheets().add("D:\\Code\\workspace\\ImageToText-GUI\\src\\main\\resources\\styles\\DarkTheme.css");
 			primaryStage.setScene(scene);
 			primaryStage.show();
 		} catch (Exception e){

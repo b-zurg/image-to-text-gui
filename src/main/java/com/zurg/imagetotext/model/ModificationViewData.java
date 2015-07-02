@@ -3,7 +3,9 @@ package com.zurg.imagetotext.model;
 import java.awt.image.BufferedImage;
 
 import utils.Point;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,7 +17,7 @@ public class ModificationViewData {
 
 	private ObservableList<Point> topLeftPoints = FXCollections.observableArrayList();
 	private ObservableList<Point> bottomRightPoints = FXCollections.observableArrayList();
-	
+	private DoubleProperty rotateValue = new SimpleDoubleProperty(0);
 	
 	public ObjectProperty<Image> getImageProperty() {
 		return imageProperty;
@@ -52,5 +54,12 @@ public class ModificationViewData {
 	}
 	public void setBottomRightPoints(ObservableList<Point> widthsAndHeights) {
 		this.bottomRightPoints = widthsAndHeights;
+	}
+	
+	public DoubleProperty getRotateValueProperty() {
+		return rotateValue;
+	}
+	public void setRotateValueProperty(DoubleProperty rotateValue) {
+		this.rotateValue = rotateValue;
 	}
 }

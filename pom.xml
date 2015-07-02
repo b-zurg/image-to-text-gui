@@ -42,12 +42,12 @@
             </plugin>
 
         </plugins>
+        
     </build>
 
 
+
     <dependencies>
-    
-        <!-- MigLayout -->
 
         <dependency>
             <groupId>com.miglayout</groupId>

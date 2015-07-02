@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
@@ -30,30 +31,44 @@
         </menus>
       </MenuBar>
    </top>
-   <center>
-      <SplitPane dividerPositions="0.5">
-         <items>
-            <ScrollPane maxWidth="220.0" prefHeight="200.0" prefWidth="200.0">
+   <left>
+      <AnchorPane>
+         <children>
+            <ScrollPane maxWidth="220.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0" BorderPane.alignment="CENTER">
                <content>
                   <VBox fx:id="vbox" prefHeight="647.0" prefWidth="170.0" />
                </content>
             </ScrollPane>
-            <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" BorderPane.alignment="CENTER">
+            <Label alignment="CENTER" layoutX="55.0" layoutY="6.0" minWidth="30.0" text="Documents" textAlignment="CENTER" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <font>
+                  <Font name="System Bold" size="23.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+   </left>
+   <center>
+      <BorderPane maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <left>
+            <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="170.0" BorderPane.alignment="CENTER">
+               <children>
+                <Button fx:id="showImageScene" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#showModificationScene" text="Modification" wrapText="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" BorderPane.alignment="CENTER">
+                     <font>
+                        <Font name="System Bold" size="22.0" />
+                     </font>
+                  </Button>
+               </children>
+            </AnchorPane>
+         </left>
+         <center>
+            <SplitPane dividerPositions="0.5" maxWidth="1.7976931348623157E308" minWidth="1100.0" orientation="VERTICAL" BorderPane.alignment="CENTER">
               <items>
-                  <AnchorPane maxHeight="70.0" minHeight="60.0">
+                  <AnchorPane maxHeight="70.0" maxWidth="1.7976931348623157E308" minHeight="60.0">
                      <children>
                         <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
                               <HBox alignment="CENTER">
                                  <children>
-                                  <Button fx:id="showImageScene" mnemonicParsing="false" onAction="#showModificationScene" prefHeight="49.0" prefWidth="169.0" text="Modification">
-                                       <font>
-                                          <Font size="22.0" />
-                                       </font>
-                                       <HBox.margin>
-                                          <Insets bottom="10.0" right="10.0" top="10.0" />
-                                       </HBox.margin>
-                                    </Button>
                                     <Button fx:id="showLineScene" mnemonicParsing="false" onAction="#showLineScene" prefHeight="49.0" prefWidth="169.0" text="Lines">
                                        <font>
                                           <Font size="22.0" />
@@ -84,10 +99,10 @@
                         </VBox>
                      </children>
                   </AnchorPane>
-                  <BorderPane fx:id="centerPane" prefHeight="200.0" prefWidth="200.0" />
+                  <BorderPane fx:id="centerPane" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" />
               </items>
             </SplitPane>
-         </items>
-      </SplitPane>
+         </center>
+      </BorderPane>
    </center>
 </BorderPane>

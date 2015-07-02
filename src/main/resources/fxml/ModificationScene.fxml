@@ -15,35 +15,87 @@
         <items>
           <AnchorPane maxWidth="200.0" minHeight="0.0" minWidth="200.0">
                <children>
-                  <VBox prefHeight="200.0" prefWidth="100.0" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="10.0">
-                     <children>
-                        <RadioButton mnemonicParsing="false" text="Rotate">
+                  <Accordion AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <panes>
+                      <TitledPane text="Rotation">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <VBox layoutX="30.0" layoutY="18.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <children>
+                                          <Label text="Degrees">
+                                             <font>
+                                                <Font size="15.0" />
+                                             </font>
+                                          </Label>
+                                          <Slider fx:id="rotateSlider" majorTickUnit="15.0" max="90.0" min="-90.0" showTickLabels="true" showTickMarks="true" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </AnchorPane>
+                        </content>
                            <font>
                               <Font size="18.0" />
                            </font>
-                        </RadioButton>
-                        <RadioButton mnemonicParsing="false" text="Stretch">
+                      </TitledPane>
+                      <TitledPane text="Stretching">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <VBox alignment="TOP_CENTER" layoutX="29.0" layoutY="13.0">
+                                       <children>
+                                          <Label text="Scale X">
+                                             <font>
+                                                <Font size="15.0" />
+                                             </font>
+                                          </Label>
+                                          <Slider layoutX="29.0" layoutY="14.0" majorTickUnit="0.2" max="2.0" minorTickCount="2" showTickLabels="true" showTickMarks="true" value="1.0" />
+                                          <Label text="Scale Y">
+                                             <font>
+                                                <Font size="15.0" />
+                                             </font>
+                                          </Label>
+                                          <Slider majorTickUnit="0.2" max="2.0" minorTickCount="2" showTickLabels="true" showTickMarks="true" value="1.0" />
+                                          <Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleResetStretchButton" text="Reset" textAlignment="CENTER">
+                                             <font>
+                                                <Font size="20.0" />
+                                             </font>
+                                          </Button>
+                                       </children>
+                                    </VBox>
+                                 </children></AnchorPane>
+                        </content>
                            <font>
                               <Font size="18.0" />
                            </font>
-                        </RadioButton>
-                        <RadioButton mnemonicParsing="false" text="Tilt">
+                      </TitledPane>
+                      <TitledPane text="Boxing">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <VBox alignment="CENTER" layoutX="13.0" layoutY="17.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <children>
+                                          <Button fx:id="addBoxButton" layoutX="13.0" layoutY="17.0" mnemonicParsing="false" onAction="#handleAddSubImage" text="Create Text Box">
+                                             <font>
+                                                <Font size="15.0" />
+                                             </font>
+                                          </Button>
+                                          <Button fx:id="clearButton" mnemonicParsing="false" onAction="#handleClearBoxes" text="Clear Boxes">
+                                             <font>
+                                                <Font size="15.0" />
+                                             </font>
+                                          </Button>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </AnchorPane>
+                        </content>
                            <font>
                               <Font size="18.0" />
                            </font>
-                        </RadioButton>
-                        <Button fx:id="addBoxButton" mnemonicParsing="false" onAction="#handleAddSubImage" text="Create Text Box">
-                           <font>
-                              <Font size="15.0" />
-                           </font>
-                        </Button>
-                        <Button fx:id="clearButton" mnemonicParsing="false" onAction="#handleClearBoxes" text="Clear Boxes">
-                           <font>
-                              <Font size="15.0" />
-                           </font>
-                        </Button>
-                     </children>
-                  </VBox>
+                      </TitledPane>
+                    </panes>
+                  </Accordion>
                </children>
             </AnchorPane>
             <AnchorPane fx:id="anchorPane">

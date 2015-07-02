@@ -47,7 +47,7 @@ public class FinishSceneController {
 			paragraph += LetterOCR.recognize(image).trim()+"\n";
 		}
 		textArea.setText(paragraph);
-		
+		textArea.setStyle("-fx-font-size: 20");
 
 		//		textArea.setScaleShape(true);		
 		//		textArea.appendText(paragraph);
